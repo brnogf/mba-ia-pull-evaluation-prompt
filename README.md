@@ -126,99 +126,150 @@ Para transformar o prompt inicial `prompts/bug_to_user_story_v1.yml` no prompt d
 
 ## Resultados Finais
 
-### Link Público do Dataset e Experimentos no LangSmith
-- **Dataset Público (15 exemplos + Experimentos comparativos):**
-  👉 **[https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d)**
-- **Prompt Público no LangSmith Hub:**
-  👉 **[`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/prompts/bug_to_user_story_v2/2f860ed1?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0)**
+### Links Públicos das Evidências no LangSmith
+- **Dataset Público de Avaliação (15 exemplos + 3 Experimentos Comparativos):**
+  👉 **[`https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d)**
+- **Prompt Público no LangSmith Hub (`publichandle/bug_to_user_story_v2`):**
+  👉 **[`https://smith.langchain.com/prompts/bug_to_user_story_v2/013cb2e4?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0`](https://smith.langchain.com/prompts/bug_to_user_story_v2/013cb2e4?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0)**
 
-### Evolução das Iterações e Métricas Obtidas
+### Jornada de Otimização (Fase 4 — Ciclo Iterativo no LangSmith)
 
-Todas as 5 métricas superaram com folga o critério mínimo de aprovação ($\ge 0.80$) nas duas execuções completas com modelos distintos da família Google Gemini:
+Seguindo a metodologia exigida no desafio (**3 a 5 iterações** de *Análise de Métricas/Traces → Edição do Prompt → Push ao Hub → Nova Avaliação*), foram conduzidas **3 iterações completas** no LangSmith sobre os 15 exemplos do dataset `mba-ia-pull-evaluation-prompt-eval`:
 
-| Métrica | Prompt v1 (Referência Inicial) | Iteração 1 (`bc838971` — `gemini-3-flash-preview`) | Iteração 2 (`359c1385` — `gemini-3.5-flash-lite`) | Meta Mínima | Status |
+1. **Iteração 1 (`publichandle-bug_to_user_story_v2-bc838971` | Hub Commit `c0e688f9` | Modelo `gemini-3-flash-preview`):**
+   - **Hipótese e Implementação:** Primeira versão estruturada do `v2` combinando *Role Prompting*, *CoT*, *Skeleton of Thought* (Simples, Médio e Complexo) e 3 exemplos *Few-shot*.
+   - **Resultado:** Aprovado com **Média Geral 0.9238** (`Helpfulness: 0.91`, `Correctness: 0.93`, `F1-Score: 0.96`, `Clarity: 0.92`, `Precision: 0.90`).
+   - **Problemas identificados via Tracing:**
+     - No Bug Simples #1 (`produto ID 1234`, run `01a13095-8241-72e2-9637-fd7bddb49e16`), o modelo manteve o `ID 1234` literalmente na User Story (`Precision: 0.66`).
+     - No Bug Simples #4 (`mostra 50 mas só há 42`, run `01a13094-cd2b-73c0-9bc4-193c76cbcd2c`), o modelo fixou o número `42` como regra de negócio (`Precision: 0.83`).
+     - No Bug Simples #5 (`Safari vs Chrome`, run `01a13094-b60f-78d1-a15a-c3a2cf0980cd`), o modelo adicionou uma seção extra de `Contexto Técnico` com jargões (`WebP`, `WebKit`), reduzindo `Clarity` (`0.85`) e `Precision` (`0.83`).
+
+2. **Iteração 2 (`publichandle-bug_to_user_story_v2-359c1385` | Hub Commit `2f860ed1` | Modelo `gemini-3.5-flash-lite`):**
+   - **Hipótese e Ajustes no Prompt:** Adicionada proibição explícita de `Contexto Técnico` em bugs simples e regra para generalizar IDs/contagens ilustrativas (`ID 1234`, `42`). Testado em modelo leve (`flash-lite`) para validar robustez em modelo econômico.
+   - **Resultado:** Aprovado com **Média Geral 0.9008** (`Helpfulness: 0.89`, `Correctness: 0.90`, `F1-Score: 0.92`, `Clarity: 0.91`, `Precision: 0.88`). O Bug Simples #4 subiu para `F1-Score: 1.00` e `Precision: 0.93`.
+   - **Problemas identificados via Tracing no modelo `flash-lite`:**
+     - Nos Bugs Médios #11 (`Carrinho fora de estoque`, run `01a130a8-7240-7512-928f-1b7322c318e7`, `F1: 0.79`) e #12 (`Modal z-index < 768px`, run `01a130a8-6c5a-73e3-a17e-6e7de7dd5425`, `F1: 0.72`), a redação condicional (*"Se o relato exigir..."*) fez o modelo `flash-lite` omitir as subseções `Critérios de Prevenção:` e `Critérios de Acessibilidade:`.
+     - No Bug Médio #6 (`Webhook HTTP 500`, run `01a130a8-92f1-7f51-bcad-c3d53b9d3856`, `Precision: 0.73`), o modelo usou a persona `"Como um cliente"` em vez de `"Como o sistema de e-commerce"` e omitiu o envio de e-mail e log de auditoria.
+     - No Bug Médio #7 (`Relatório > 2 min`, run `01a130a8-8d8a-7ee2-8e13-c2e1e08eaa38`, `Precision: 0.83`), o modelo propôs meta de `< 10 segundos` (influenciado pelo Exemplo Few-shot #2 que citava `< 15s`) em vez de `< 30 segundos`.
+     - No Bug Médio #10 (`App Android ANR`, run `01a130a8-7862-7080-9144-55fa08010230`, `Clarity: 0.85`), o modelo escreveu `"Entonces"` em espanhol e incluiu `DiffUtil` e `Coroutines`.
+
+3. **Iteração 3 (`publichandle-bug_to_user_story_v2-25a11dc9` | Hub Commit `013cb2e4` | Modelo `gemini-3.1-flash-lite`):**
+   - **Hipótese e Refinamento Definitivo:** Substituição das instruções condicionais em `B) Para BUGS MÉDIOS` por **7 moldes obrigatórios por domínio** (tornando obrigatórias as subseções `Critérios Adicionais para Admins:`, `Exemplo de Cálculo:`, `Critérios Técnicos:`, `Critérios de Prevenção:` e `Critérios de Acessibilidade:`), alinhamento do Exemplo Few-shot #2 para `< 30 segundos`, exigência de português estrito (`- Então`, nunca `- Entonces`) e eliminação de advérbios prolixos em bugs simples.
+   - **Resultado Final:** **Salto expressivo em todas as 5 métricas**, atingindo **Média Geral 0.9614** (`Helpfulness: 0.95`, `Correctness: 0.97`, `F1-Score: 0.98`, `Clarity: 0.96`, `Precision: 0.95`), com **100% de nota máxima (`1.00`) nos 7 bugs médios do dataset!**
+
+### Tabela Comparativa das 5 Métricas por Iteração
+
+| Métrica | Prompt `v1` *(Baseline Inicial)* | Iteração 1 (`bc838971` — Hub `c0e688f9`) | Iteração 2 (`359c1385` — Hub `2f860ed1`) | Iteração 3 (`25a11dc9` — Hub `013cb2e4`) | Meta Mínima | Status Final |
+|---|---|---|---|---|---|---|
+| **Helpfulness** *(Derivada)* | 0.45 ✗ | **0.91** ✓ | **0.89** ✓ | **0.95** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.50 vs `v1`) |
+| **Correctness** *(Derivada)* | 0.52 ✗ | **0.93** ✓ | **0.90** ✓ | **0.97** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.45 vs `v1`) |
+| **F1-Score** *(Base)* | 0.48 ✗ | **0.96** ✓ | **0.92** ✓ | **0.98** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.50 vs `v1`) |
+| **Clarity** *(Base)* | 0.50 ✗ | **0.92** ✓ | **0.91** ✓ | **0.96** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.46 vs `v1`) |
+| **Precision** *(Base)* | 0.46 ✗ | **0.90** ✓ | **0.88** ✓ | **0.95** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.49 vs `v1`) |
+| **MÉDIA GERAL** | **0.4820** ✗ | **0.9238** ✓ | **0.9008** ✓ | **0.9614** ✓ | $\ge 0.80$ | ✅ **APROVADO** |
+
+### Evolução Individual nos 15 Exemplos do Dataset (`F1 / Clarity / Precision`)
+
+| # | Bug Report (`datasets/bug_to_user_story.jsonl`) | Complexidade | Iteração 1 (`bc838971`) | Iteração 2 (`359c1385`) | Iteração 3 (`25a11dc9`) |
 |---|---|---|---|---|---|
-| **Helpfulness** *(Derivada)* | 0.45 ✗ | **0.91** ✓ | **0.89** ✓ | $\ge 0.80$ | ✅ APROVADO |
-| **Correctness** *(Derivada)* | 0.52 ✗ | **0.93** ✓ | **0.90** ✓ | $\ge 0.80$ | ✅ APROVADO |
-| **F1-Score** *(Base)* | 0.48 ✗ | **0.96** ✓ | **0.92** ✓ | $\ge 0.80$ | ✅ APROVADO |
-| **Clarity** *(Base)* | 0.50 ✗ | **0.92** ✓ | **0.91** ✓ | $\ge 0.80$ | ✅ APROVADO |
-| **Precision** *(Base)* | 0.46 ✗ | **0.90** ✓ | **0.88** ✓ | $\ge 0.80$ | ✅ APROVADO |
-| **MÉDIA GERAL** | **0.4820** ✗ | **0.9238** ✓ | **0.9008** ✓ | $\ge 0.80$ | ✅ **APROVADO** |
+| 1 | Botão de adicionar ao carrinho (produto ID 1234) | `simple` | `1.00 / 0.90 / 0.66` | `0.97 / 0.95 / 0.66` | `0.97 / 0.85 / 0.66` |
+| 2 | Campo de email aceita texto sem `@` | `simple` | `0.90 / 0.95 / 0.93` | `0.90 / 0.95 / 0.93` | **`1.00 / 0.90 / 0.93`** |
+| 3 | iOS tela de perfil quebrada em modo landscape | `simple` | `0.97 / 0.90 / 0.93` | `0.92 / 0.90 / 0.93` | **`1.00 / 0.85 / 0.93`** |
+| 4 | Dashboard mostra contagem errada (50 vs 42) | `simple` | `0.90 / 0.90 / 0.83` | `1.00 / 0.85 / 0.93` | **`0.97 / 0.95 / 0.93`** |
+| 5 | Imagens de produtos não aparecem no Safari | `simple` | `0.95 / 0.85 / 0.83` | `0.87 / 0.85 / 0.83` | **`1.00 / 0.95 / 0.93`** |
+| 6 | Webhook de pagamento aprovado (`POST` HTTP 500) | `medium` | `0.90 / 0.90 / 0.83` | `0.87 / 0.85 / 0.73` | **`1.00 / 1.00 / 1.00`** |
+| 7 | Relatório de vendas demora > 2 min (> 1000 reg.) | `medium` | `0.95 / 0.95 / 0.93` | `0.87 / 0.95 / 0.83` | **`1.00 / 1.00 / 1.00`** |
+| 8 | Endpoint `/api/users/:id` sem validar permissões | `medium` | `0.97 / 0.95 / 0.97` | `0.97 / 0.90 / 0.93` | **`1.00 / 1.00 / 1.00`** |
+| 9 | Pipeline de vendas calcula desconto errado | `medium` | `1.00 / 0.95 / 0.97` | `1.00 / 0.95 / 0.97` | **`1.00 / 1.00 / 1.00`** |
+| 10 | App Android trava (ANR) com > 50 notificações | `medium` | `1.00 / 0.85 / 0.93` | `0.97 / 0.85 / 0.93` | **`1.00 / 1.00 / 1.00`** |
+| 11 | Carrinho permite finalizar compra sem estoque | `medium` | `0.92 / 0.95 / 0.93` | `0.79 / 0.85 / 0.83` | **`1.00 / 1.00 / 1.00`** |
+| 12 | Modal de exclusão atrás do menu (`z-index` < 768px) | `medium` | `0.92 / 0.95 / 0.93` | `0.72 / 0.90 / 0.90` | **`1.00 / 1.00 / 1.00`** |
+| 13 | Checkout crítico (XSS, 504 pool, cupom race, UX) | `complex` | `1.00 / 0.95 / 0.93` | `0.97 / 0.95 / 0.93` | **`0.97 / 0.95 / 0.97`** |
+| 14 | Relatórios gerenciais (N+1, MRR, Redis, CSV OOM) | `complex` | `0.97 / 0.95 / 0.93` | `1.00 / 0.95 / 0.93` | **`0.92 / 0.95 / 0.93`** |
+| 15 | App offline-first (merge conflict, 50MB, ordem, OOM) | `complex` | `0.97 / 0.95 / 0.97` | `1.00 / 0.95 / 0.93` | **`0.92 / 0.95 / 0.93`** |
 
-#### Saída do CLI — Iteração 1 (`publichandle-bug_to_user_story_v2-bc838971`)
+#### Saída Completa do CLI — Iteração 3 Final (`publichandle-bug_to_user_story_v2-25a11dc9`)
 ```text
+==================================================
+AVALIAÇÃO DE PROMPTS OTIMIZADOS
+==================================================
+
+Provider: google
+Modelo Principal: gemini-3.1-flash-lite
+Modelo de Avaliação: gemini-3.1-flash-lite
+
+Criando dataset de avaliação: mba-ia-pull-evaluation-prompt-eval...
+   ✓ Carregados 15 exemplos do arquivo datasets/bug_to_user_story.jsonl
+   ✓ Dataset 'mba-ia-pull-evaluation-prompt-eval' já existe, usando existente
+   ✓ https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458
+
 🔍 Avaliando: publichandle/bug_to_user_story_v2
    Puxando prompt do LangSmith Hub: publichandle/bug_to_user_story_v2
    ✓ Prompt carregado com sucesso
    Rodando experimento no LangSmith...
-      [1] F1:0.97 Clarity:0.95 Precision:0.97
-      [2] F1:0.97 Clarity:0.95 Precision:0.93
-      [3] F1:1.00 Clarity:0.95 Precision:0.93
-      [4] F1:0.92 Clarity:0.95 Precision:0.93
-      [5] F1:0.92 Clarity:0.95 Precision:0.93
-      [6] F1:1.00 Clarity:0.85 Precision:0.93
-      [7] F1:1.00 Clarity:0.95 Precision:0.97
-      [8] F1:0.97 Clarity:0.95 Precision:0.97
-      [9] F1:0.95 Clarity:0.95 Precision:0.93
-      [10] F1:0.90 Clarity:0.90 Precision:0.83
-      [11] F1:0.95 Clarity:0.85 Precision:0.83
-      [12] F1:0.90 Clarity:0.90 Precision:0.83
-      [13] F1:0.97 Clarity:0.90 Precision:0.93
-      [14] F1:0.90 Clarity:0.95 Precision:0.93
-      [15] F1:1.00 Clarity:0.90 Precision:0.66
+View the evaluation results for experiment: 'publichandle-bug_to_user_story_v2-25a11dc9' at:
+https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=6776a518-e2c7-496e-870a-cf7375b6fe35
+
+      [1] F1:0.92 Clarity:0.95 Precision:0.93
+      [2] F1:0.92 Clarity:0.95 Precision:0.93
+      [3] F1:0.97 Clarity:0.95 Precision:0.97
+      [4] F1:1.00 Clarity:1.00 Precision:1.00
+      [5] F1:1.00 Clarity:1.00 Precision:1.00
+      [6] F1:1.00 Clarity:1.00 Precision:1.00
+      [7] F1:1.00 Clarity:1.00 Precision:1.00
+      [8] F1:1.00 Clarity:1.00 Precision:1.00
+      [9] F1:1.00 Clarity:1.00 Precision:1.00
+      [10] F1:1.00 Clarity:1.00 Precision:1.00
+      [11] F1:1.00 Clarity:0.95 Precision:0.93
+      [12] F1:0.97 Clarity:0.95 Precision:0.93
+      [13] F1:1.00 Clarity:0.85 Precision:0.93
+      [14] F1:1.00 Clarity:0.90 Precision:0.93
+      [15] F1:0.97 Clarity:0.85 Precision:0.66
 
 ==================================================
 Prompt: publichandle/bug_to_user_story_v2
 ==================================================
 
 Métricas Derivadas:
-  - Helpfulness: 0.91 ✓
-  - Correctness: 0.93 ✓
+  - Helpfulness: 0.95 ✓
+  - Correctness: 0.97 ✓
 
 Métricas Base:
-  - F1-Score: 0.96 ✓
-  - Clarity: 0.92 ✓
-  - Precision: 0.90 ✓
+  - F1-Score: 0.98 ✓
+  - Clarity: 0.96 ✓
+  - Precision: 0.95 ✓
 
 --------------------------------------------------
-📊 MÉDIA GERAL: 0.9238
+📊 MÉDIA GERAL: 0.9614
 --------------------------------------------------
 
 ✅ STATUS: APROVADO - Todas as métricas >= 0.8
 ```
 
-#### Saída do CLI — Iteração 2 (`publichandle-bug_to_user_story_v2-359c1385`)
+#### Resumo do CLI — Iterações Anteriores (`bc838971` e `359c1385`)
 ```text
-==================================================
-Prompt: publichandle/bug_to_user_story_v2
-==================================================
+# Iteração 1 (publichandle-bug_to_user_story_v2-bc838971)
+Métricas Derivadas: Helpfulness: 0.91 ✓ | Correctness: 0.93 ✓
+Métricas Base:      F1-Score: 0.96 ✓    | Clarity: 0.92 ✓     | Precision: 0.90 ✓
+📊 MÉDIA GERAL: 0.9238 — ✅ STATUS: APROVADO
 
-Métricas Derivadas:
-  - Helpfulness: 0.89 ✓
-  - Correctness: 0.90 ✓
-
-Métricas Base:
-  - F1-Score: 0.92 ✓
-  - Clarity: 0.91 ✓
-  - Precision: 0.88 ✓
-
---------------------------------------------------
-📊 MÉDIA GERAL: 0.9008
---------------------------------------------------
-
-✅ STATUS: APROVADO - Todas as métricas >= 0.8
+# Iteração 2 (publichandle-bug_to_user_story_v2-359c1385)
+Métricas Derivadas: Helpfulness: 0.89 ✓ | Correctness: 0.90 ✓
+Métricas Base:      F1-Score: 0.92 ✓    | Clarity: 0.91 ✓     | Precision: 0.88 ✓
+📊 MÉDIA GERAL: 0.9008 — ✅ STATUS: APROVADO
 ```
 
-### Comparação entre o Prompt Original (`v1`) e o Otimizado (`v2`)
+### Comparação Detalhada entre o Prompt Original (`v1`) e o Prompt Otimizado (`v2`)
 
-| Aspecto | Prompt Original (`bug_to_user_story_v1.yml`) | Prompt Otimizado (`bug_to_user_story_v2.yml`) | Por que mudou? |
+| Dimensão | Prompt Original (`bug_to_user_story_v1.yml`) | Prompt Otimizado (`bug_to_user_story_v2.yml`) | Impacto nas Métricas de Avaliação |
 |---|---|---|---|
-| **Separação System vs User** | Duplicava `{bug_report}` tanto no `system_prompt` quanto no `user_prompt`. | `system_prompt` contém apenas instruções, regras e exemplos; `user_prompt` contém exclusivamente `"{bug_report}"`. | Evita repetição desnecessária de tokens e separa instruções permanentes da entrada variável. |
-| **Persona (Role Prompting)** | Assistente genérico sem especialização. | *Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis*. | Garante linguagem centrada no usuário, empatia e foco em valor de negócio (`para que...`). |
-| **Formato da User Story e Critérios** | Nenhuma instrução de formato (saída livre e inconsistente). | Exige formato ágil padrão (`Como [persona], eu quero [ação], para que [benefício]`) e critérios BDD/Gherkin (`Dado que` / `Quando` / `Então` / `E`). | Alinha 100% da estrutura com os critérios de avaliação de `Clarity` e `F1-Score`. |
-| **Adaptação à Complexidade** | Tratava bugs de 1 linha e bugs críticos de múltiplas falhas da mesma forma. | *Skeleton of Thought* adaptativo em 3 níveis (Simples, Médio e Complexo com seções `=== ... ===`). | Evita prolixidade em bugs simples (protegendo `Precision` e `Clarity`) e garante completude técnica em bugs médios e complexos (protegendo `Recall`/`F1-Score`). |
-| **Prevenção de Alucinações e Edge Cases** | Sem restrições contra invenção de dados. | Regras explícitas para preservar 100% das métricas/logs/endpoints do relato, generalizar IDs ilustrativos em bugs simples e não inventar ferramentas externas. | Aumenta `Precision` e `Correctness` no julgamento LLM-as-a-Judge. |
-| **Exemplos (Few-shot)** | 0 exemplos (Zero-shot). | 3 exemplos completos (Simples, Médio e Complexo). | Demonstra na prática a estrutura e a densidade técnica esperadas em cada nível de complexidade. |
+| **Separação System vs User** | Duplicava `{bug_report}` no `system_prompt` e no `user_prompt`. | `system_prompt` concentra instruções, regras e exemplos; `user_prompt` contém apenas `"{bug_report}"`. | Elimina ruído estrutural e garante aderência às boas práticas do `ChatPromptTemplate`. |
+| **Persona (Role Prompting)** | *"Você é um assistente que ajuda a transformar relatos de bugs..."* | *"Você é um Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis..."* | Eleva empatia, profissionalismo e articulação de valor de negócio (`Helpfulness` de `0.45` para `0.95`). |
+| **Processo de Raciocínio** | Inexistente (geração direta sem análise prévia). | **Chain of Thought (CoT)** em 4 passos (classificação de complexidade, persona, extração sem alucinação e seleção de esqueleto). | Evita omissão de requisitos críticos e protege `Correctness` (`0.97`) e `F1-Score` (`0.98`). |
+| **Estrutura da Resposta** | Texto livre, sem padrão de User Story nem critérios BDD. | **Skeleton of Thought** adaptativo em 3 níveis (Simples em 2 blocos, Médio com subseções de domínio e Complexo com 6 seções `=== ... ===`). | Maximiza `Clarity` (`0.96`) e garante 100% de cobertura estrutural em todos os 15 casos. |
+| **Exemplos de Calibração** | Zero-shot (0 exemplos). | **Few-shot Learning** com 3 exemplos completos e inéditos (1 Simples, 1 Médio, 1 Complexo). | Estabiliza a formatação Given-When-Then e o nível de detalhe esperado pelo juiz. |
+| **Controle de Alucinações e Edge Cases** | Sem restrições contra invenção de dados ou ferramentas. | Proibição explícita de jargões/bibliotecas não citadas, generalização de IDs ilustrativos em bugs simples e preservação de SLAs/HTTP/SQL. | Eleva `Precision` de `0.46` para `0.95` (atingindo `1.00` em todos os 7 bugs médios). |
+| **Metadados e Governança** | 3 tags básicas, sem lista de técnicas. | 7 tags semânticas + campo `techniques_applied` com as 4 técnicas documentadas. | Permite rastreabilidade no LangSmith Hub e aprovação em 100% dos testes `pytest`. |
 
 ---
 
