@@ -348,75 +348,138 @@ Conforme destacado nas *Dicas Finais* do desafio (*"Use o Tracing do LangSmith c
 
 ---
 
+## Arquitetura de Avaliação e Testes de Validação (Fase 5)
+
+### Como Funcionam as Métricas Customizadas (`src/metrics.py` & `src/evaluate.py`)
+
+O avaliador automatizado utiliza o padrão **LLM-as-a-Judge** (`temperature=0` para máxima reprodutibilidade) comparando a resposta gerada (`answer`) com o relato original (`bug_report`) e a referência (`reference` do dataset `datasets/bug_to_user_story.jsonl`):
+
+1. **Métricas Base (calculadas diretamente pelos 3 juízes LLM em `src/metrics.py`):**
+   - **`F1-Score` (`evaluate_f1_score`):** Avalia `Precision` (fidelidade e relevância das informações geradas) e `Recall` (presença das informações essenciais da resposta esperada), calculando a média harmônica:
+     $$\text{F1-Score} = \frac{2 \times (\text{Precision} \times \text{Recall})}{\text{Precision} + \text{Recall}}$$
+   - **`Clarity` (`evaluate_clarity`):** Média de 4 subcritérios (0.0 a 1.0): *Organização*, *Linguagem simples e direta*, *Ausência de ambiguidade* e *Concisão*.
+   - **`Precision` (`evaluate_precision`):** Média de 3 subcritérios (0.0 a 1.0): *Ausência de alucinações*, *Foco na pergunta* e *Correção factual*.
+2. **Métricas Derivadas (calculadas em `src/evaluate.py` e gravadas como feedback no LangSmith):**
+   - **`Helpfulness`:** $\text{round}\left(\frac{\text{Clarity} + \text{Precision}}{2}, 4\right)$
+   - **`Correctness`:** $\text{round}\left(\frac{\text{F1-Score} + \text{Precision}}{2}, 4\right)$
+3. **Métricas Específicas de Domínio (disponíveis em `src/metrics.py` para inspeção complementar):**
+   - `Tone Score` (`evaluate_tone_score`), `Acceptance Criteria Score` (`evaluate_acceptance_criteria_score`), `User Story Format Score` (`evaluate_user_story_format_score`) e `Completeness Score` (`evaluate_completeness_score`).
+
+### Suite de Testes de Validação (`tests/test_prompts.py`)
+
+Foram implementados os **6 testes obrigatórios** com `pytest` para validar a integridade estrutural e semântica de `prompts/bug_to_user_story_v2.yml` antes de cada envio ao LangSmith Hub:
+
+| Teste (`tests/test_prompts.py`) | O que valida | Status |
+|---|---|---|
+| `test_prompt_has_system_prompt` | Existência do campo `system_prompt` não vazio e aprovação em `validate_prompt_structure`. | ✅ `PASSED` |
+| `test_prompt_has_role_definition` | Definição explícita de persona (`Product Manager` / `Especialista em Engenharia de Requisitos`). | ✅ `PASSED` |
+| `test_prompt_mentions_format` | Exigência de formato Markdown/User Story (`Como...`, `eu quero...`, `para que...`, `Critérios de Aceitação`). | ✅ `PASSED` |
+| `test_prompt_has_few_shot_examples` | Presença de exemplos Few-shot com blocos explícitos de `Entrada:` e `Saída Esperada:`. | ✅ `PASSED` |
+| `test_prompt_no_todos` | Ausência total de marcações `[TODO]` ou `TODO` esquecidas no YAML. | ✅ `PASSED` |
+| `test_minimum_techniques` | Lista `techniques_applied` nos metadados do YAML contendo pelo menos 2 técnicas (4 aplicadas). | ✅ `PASSED` |
+
+```text
+$ pytest tests/test_prompts.py -v
+============================= test session starts =============================
+collected 6 items
+
+tests/test_prompts.py::TestPrompts::test_prompt_has_system_prompt PASSED [ 16%]
+tests/test_prompts.py::TestPrompts::test_prompt_has_role_definition PASSED [ 33%]
+tests/test_prompts.py::TestPrompts::test_prompt_mentions_format PASSED   [ 50%]
+tests/test_prompts.py::TestPrompts::test_prompt_has_few_shot_examples PASSED [ 66%]
+tests/test_prompts.py::TestPrompts::test_prompt_no_todos PASSED          [ 83%]
+tests/test_prompts.py::TestPrompts::test_minimum_techniques PASSED       [100%]
+
+============================== 6 passed in 0.23s ==============================
+```
+
+---
+
 ## Como Executar
 
 ### 1. Pré-requisitos e Dependências
-- **Python:** 3.10+ (testado com Python 3.13.7)
-- **Conta e API Key no LangSmith:** [https://smith.langchain.com](https://smith.langchain.com) (com handle público do LangSmith Hub configurado)
-- **API Key de LLM:** Google Gemini ([Google AI Studio](https://aistudio.google.com/app/apikey)) ou OpenAI ([OpenAI Platform](https://platform.openai.com/api-keys))
+- **Linguagem:** Python 3.10+ (validado em Python 3.13.7)
+- **Framework e Pacotes (`requirements.txt`):**
+  - `langchain-core==1.6.4` (`ChatPromptTemplate`, mensagens e composição LCEL `prompt | llm`)
+  - `langsmith==0.13.0` (`Client` para pull/push de prompts, criação de datasets e `client.evaluate`)
+  - `langchain-google-genai==4.4.0` e `langchain-openai==1.6.2`
+  - `python-dotenv==1.2.3`, `pyyaml==6.0.3`, `pydantic==2.13.5`, `pytest==9.1.1`
+- **Conta no LangSmith e Handle Público do Hub (`USERNAME_LANGSMITH_HUB`):**
+  1. Acesse [https://smith.langchain.com](https://smith.langchain.com) → menu **Prompts**.
+  2. Crie ou abra um prompt, clique nos **três pontinhos** ao lado de **Playground** e selecione **Make Public**.
+  3. Defina seu handle público definitivo em **Choose your public handle** e informe-o em `USERNAME_LANGSMITH_HUB` no `.env`.
+- **API Key de LLM (Multi-provider):**
+  - **Google Gemini (recomendado / free tier disponível):** Crie uma chave em [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) e consulte os modelos ativos em [https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models).
+  - **OpenAI (opcional):** Crie uma chave em [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) e consulte os modelos em [https://platform.openai.com/docs/models](https://platform.openai.com/docs/models).
+  - *Nota importante:* Escolha modelos que suportem `temperature=0` para garantir reprodutibilidade na geração e na avaliação.
 
-### 2. Configuração do Ambiente Virtual
+### 2. Criação e Ativação do Ambiente Virtual (`VirtualEnv`)
 ```bash
-# Criar ambiente virtual
+# Criar o ambiente virtual
 python -m venv venv
 
-# Ativar ambiente virtual
-# Windows (PowerShell):
+# Ativar o ambiente virtual:
+# No Windows (PowerShell):
 .\venv\Scripts\Activate.ps1
-# Linux/macOS:
+# No Windows (CMD):
+venv\Scripts\activate
+# No Linux/macOS:
 source venv/bin/activate
 
-# Instalar dependências
+# Instalar todas as dependências obrigatórias
 pip install -r requirements.txt
 ```
 
-### 3. Configuração do Arquivo `.env`
-Copie o template `.env.example` para `.env` e preencha suas chaves:
+### 3. Configuração das Variáveis de Ambiente (`.env`)
+Copie o arquivo `.env.example` para `.env`:
 ```bash
 cp .env.example .env
 ```
-Exemplo de configuração utilizando Google Gemini:
+Preencha o arquivo `.env` (exemplo com Google Gemini utilizado na validação final):
 ```env
 LANGSMITH_TRACING=true
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
-LANGSMITH_API_KEY=lsv2_pt_...
+LANGSMITH_API_KEY=lsv2_pt_sua_chave_aqui
 LANGSMITH_PROJECT=mba-ia-pull-evaluation-prompt
 USERNAME_LANGSMITH_HUB=publichandle
 
-GOOGLE_API_KEY=AIzaSy...
+GOOGLE_API_KEY=AIzaSy_sua_chave_aqui
 LLM_PROVIDER=google
 LLM_MODEL=gemini-3.1-flash-lite
 EVAL_MODEL=gemini-3.1-flash-lite
 ```
 
-### 4. Comandos para Cada Fase do Projeto
+### 4. Ordem de Execução das Fases do Projeto
 
 #### Fase 1 — Pull do Prompt Inicial (`v1`) do LangSmith Hub
 ```bash
 python src/pull_prompts.py
 ```
-Conecta ao LangSmith Hub, baixa o prompt `leonanluppi/bug_to_user_story_v1` e salva em `prompts/bug_to_user_story_v1.yml`.
+Conecta ao LangSmith via `Client().pull_prompt("leonanluppi/bug_to_user_story_v1", dangerously_pull_public_prompt=True)`, extrai `system_prompt` e `user_prompt` do `ChatPromptTemplate` e salva em `prompts/bug_to_user_story_v1.yml`.
 
-#### Fase 2 — Validação Local com Testes Automatizados (`pytest`)
+#### Fase 2 — Execução dos Testes de Validação Local (`pytest`)
 ```bash
 pytest tests/test_prompts.py -v
 ```
-Executa os 6 testes automatizados validando `prompts/bug_to_user_story_v2.yml`:
-- `test_prompt_has_system_prompt`
-- `test_prompt_has_role_definition`
-- `test_prompt_mentions_format`
-- `test_prompt_has_few_shot_examples`
-- `test_prompt_no_todos`
-- `test_minimum_techniques`
+Executa os 6 testes automatizados garantindo que `prompts/bug_to_user_story_v2.yml` cumpre todos os pré-requisitos estruturais e de engenharia de prompt antes da publicação.
 
 #### Fase 3 — Push do Prompt Otimizado (`v2`) ao LangSmith Hub
 ```bash
 python src/push_prompts.py
 ```
-Valida a estrutura de `prompts/bug_to_user_story_v2.yml` e publica `{USERNAME_LANGSMITH_HUB}/bug_to_user_story_v2` como público no LangSmith Prompt Hub com tags e descrição.
+Lê `prompts/bug_to_user_story_v2.yml`, valida sua estrutura, monta o `ChatPromptTemplate` com mensagens `("system", system_prompt)` e `("user", user_prompt)` e publica `{USERNAME_LANGSMITH_HUB}/bug_to_user_story_v2` com `is_public=True`, `description` e `tags`.
 
-#### Fase 4 — Execução da Avaliação e Experimentos no LangSmith
+#### Fase 4 — Execução da Avaliação Automatizada (`src/evaluate.py`)
 ```bash
 python src/evaluate.py
 ```
-Cria/reutiliza o dataset `{LANGSMITH_PROJECT}-eval` com os 15 exemplos de `datasets/bug_to_user_story.jsonl`, puxa o prompt `{USERNAME_LANGSMITH_HUB}/bug_to_user_story_v2` do Hub, executa o experimento avaliando as 5 métricas (`Helpfulness`, `Correctness`, `F1-Score`, `Clarity`, `Precision`) e grava os feedbacks no LangSmith.
+Cria ou reutiliza o dataset `{LANGSMITH_PROJECT}-eval` a partir dos 15 exemplos de `datasets/bug_to_user_story.jsonl`, faz pull de `{USERNAME_LANGSMITH_HUB}/bug_to_user_story_v2` do Hub, executa o experimento com `client.evaluate(...)`, registra as 5 métricas (`helpfulness`, `correctness`, `f1_score`, `clarity`, `precision`) como feedback em cada run e exibe o relatório final no CLI.
+
+#### Compartilhamento Público do Dataset (Executar Apenas Uma Vez)
+Para gerar o link público do dataset e de seus experimentos comparativos no LangSmith (já gerado neste projeto em `https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d`):
+```python
+from langsmith import Client
+
+print(Client().share_dataset(dataset_name="mba-ia-pull-evaluation-prompt-eval")["url"])
+```
+*(Atenção: conforme o enunciado, rode apenas uma vez e guarde o endereço, pois ao compartilhar novamente o link muda).*
