@@ -273,37 +273,78 @@ Métricas Base:      F1-Score: 0.92 ✓    | Clarity: 0.91 ✓     | Precision: 
 
 ---
 
-### Tracing Detalhado de 3 Exemplos no LangSmith
+### Tracing Detalhado de 5 Exemplos no LangSmith (Evidências de Debug)
 
-Durante o ciclo de otimização, utilizamos o **Tracing do LangSmith** para inspecionar as entradas, saídas geradas, tempo de execução e raciocínio (`reasoning`) dos juízes de avaliação:
+Conforme destacado nas *Dicas Finais* do desafio (*"Use o Tracing do LangSmith como sua principal ferramenta de debug - ele mostra exatamente o que o LLM está 'pensando'"*), inspecionamos os traces individuais (entradas, saídas geradas, latência e `reasoning` dos juízes de `F1-Score`, `Clarity` e `Precision`) para guiar cada refinamento entre as Iterações 1, 2 e 3:
 
-#### Exemplo 1 — Bug Simples (Run ID: `01a130a8-b778-7632-a8d3-4a49afebe81c`)
-- **Input (`bug_report`):** `"Botão de adicionar ao carrinho não funciona no produto ID 1234."`
-- **Evolução via Debug de Trace:** Na Iteração 1 (`run 01a13095-8241-72e2-9637-fd7bddb49e16`), o trace mostrou que o modelo havia restringido a User Story ao `"produto ID 1234"`. Na Iteração 2, após ajuste nas regras do prompt, o modelo generalizou corretamente a funcionalidade:
-  ```text
-  Como um cliente navegando na loja, eu quero adicionar produtos ao carrinho com sucesso, para que eu possa prosseguir com a minha compra.
+#### Exemplo 1 — Bug Simples: Contagem de Usuários Ativos no Dashboard
+- **Run IDs comparados:** Iteração 1 (`01a13094-cd2b-73c0-9bc4-193c76cbcd2c`) → Iteração 2 (`01a130a8-a55d-7b92-8001-5a308f45e3ca`) → Iteração 3 (`01a130dc-dc05-7fc3-b862-38dc4be68371`)
+- **Input (`bug_report`):** `"Dashboard mostra contagem errada de usuários ativos. Mostra 50 mas só há 42 na lista."`
+- **Diagnóstico via Trace:**
+  - Na **Iteração 1**, o juiz de `Precision` (`0.83`) apontou: *"o modelo 'alucinou' o número específico '42' como uma regra de negócio fixa, enquanto o problema original apenas citava 42 como um exemplo de discrepância atual"*.
+  - Na **Iteração 2**, após instruirmos a generalização de números ilustrativos, `F1-Score` subiu para `1.00`, mas `Clarity` ficou em `0.85` porque o modelo usou advérbios prolixos (*"rigorosamente"*, *"simultaneamente"*).
+  - Na **Iteração 3**, após vedarmos advérbios prolixos em bugs simples, a saída gerada ficou enxuta e direta:
+    ```text
+    Como um administrador visualizando o dashboard, eu quero ver a contagem correta de usuários ativos, para que eu possa tomar decisões baseadas em dados precisos.
 
-  Critérios de Aceitação:
-  - Dado que estou na página de detalhes de um produto
-  - Quando clico no botão "Adicionar ao carrinho"
-  - Então o produto deve ser incluído no carrinho de compras com a quantidade selecionada
-  - E devo visualizar uma confirmação visual de que o item foi adicionado
-  - E o contador de itens no ícone do carrinho deve ser atualizado imediatamente
-  ```
-- **Notas no Trace:** `F1-Score: 0.97` | `Clarity: 0.95` (`2.66s`)
-- **Feedback do Juiz (`Clarity`):** *"A resposta é excelente e segue o padrão de User Story (Gherkin) de forma impecável. A organização é lógica, a linguagem é técnica, porém acessível, e não há ambiguidades."*
+    Critérios de Aceitação:
+    - Dado que acesso o dashboard como admin
+    - Quando visualizo a métrica de usuários ativos
+    - Então o número exibido deve corresponder ao total real de usuários ativos
+    - E o valor deve ser atualizado em tempo real
+    - E deve incluir apenas usuários com status "ativo"
+    ```
+- **Notas Finais no Trace (Iteração 3):** `F1-Score: 0.97` | `Clarity: 0.95` | `Precision: 0.93` | `Helpfulness: 0.94` | `Correctness: 0.95`
 
-#### Exemplo 2 — Bug Médio de Segurança / IDOR (Run ID: `01a13094-61e0-7b22-b31c-a6a6743464b7`)
-- **Input (`bug_report`):** `"Endpoint /api/users/:id retorna dados de qualquer usuário sem validar permissões... Severidade: ALTA - vazamento de dados pessoais"`
-- **Saída Gerada no Trace (Resumo):** User Story com persona autenticada + `Critérios de Aceitação:` (bloqueio `HTTP 403 Forbidden` para acesso a terceiros) + `Critérios Adicionais para Admins:` (`HTTP 200` e registro em log) + `Contexto de Segurança:` (Severidade ALTA, OWASP A01:2021 Broken Access Control, exposição de email/telefone/endereço e implementação de middleware de autorização).
-- **Notas no Trace:** `F1-Score: 0.97` | `Clarity: 0.95` | `Precision: 0.97` | `Helpfulness: 0.96` | `Correctness: 0.97` (`11.62s`)
-- **Feedback do Juiz (`Precision`):** *"A resposta gerada é excelente e tecnicamente precisa. Ela expande o formato de User Story e Critérios de Aceitação de forma profissional, mantendo total fidelidade ao problema de IDOR relatado. Não há alucinações; a inclusão de detalhes como 'middleware de autorização' e a distinção clara entre usuários comuns e administradores está correta e alinhada com as melhores práticas de segurança (OWASP)."*
+#### Exemplo 2 — Bug Médio de Integração: Webhook de Pagamento Aprovado (`HTTP 500`)
+- **Run IDs comparados:** Iteração 2 (`01a130a8-92f1-7f51-bcad-c3d53b9d3856`) → Iteração 3 (`01a130dc-69e1-7fc1-bbcf-40ff264fd430`)
+- **Input (`bug_report`):** `"Webhook de pagamento aprovado não está sendo chamado... Logs do gateway mostram: HTTP 500 ao tentar POST /api/webhooks/payment"`
+- **Diagnóstico via Trace:**
+  - Na **Iteração 2**, o trace revelou `Precision: 0.73` e `Helpfulness: 0.79`. O feedback do juiz no LangSmith apontou dois desvios claros: *(1) mudança da persona de 'sistema de e-commerce' para 'cliente'*, e *(2) omissão dos requisitos de envio de e-mail de confirmação ao cliente, log para auditoria e placeholder `Gateway: [nome do gateway de pagamento]`*.
+  - Na **Iteração 3**, com o molde explícito de integração via webhook em `B) Para BUGS MÉDIOS`, o modelo gerou:
+    ```text
+    Como o sistema de e-commerce, eu quero receber notificações de pagamento aprovado via webhook, para que o status dos pedidos seja atualizado automaticamente após confirmação do pagamento.
 
-#### Exemplo 3 — Bug Complexo Crítico de Checkout (Run ID: `01a13093-c705-7db3-ac3d-9047df09b597`)
-- **Input (`bug_report`):** `"Sistema de checkout com múltiplas falhas críticas. PROBLEMAS IDENTIFICADOS: 1. SEGURANÇA - XSS no campo de cupom... 2. INTEGRAÇÃO - Gateway de pagamento retorna erro intermitente (504 / Connection pool exhausted)... 3. LÓGICA DE NEGÓCIO - Race condition em cupons (PROMO10, 147 usos)... 4. UX - Loading infinito após timeout..."`
-- **Saída Gerada no Trace (Resumo):** User Story síntese + `=== USER STORY PRINCIPAL ===` + `=== CRITÉRIOS DE ACEITAÇÃO ===` divididos em A (Segurança XSS), B (Integração Pagamento <30s com retry/backoff), C (Controle atômico de cupons até 100 usos) e D (UX sem loading infinito) + `=== CRITÉRIOS TÉCNICOS ===` (DOMPurify, CSP, pool do Postgres, Circuit Breaker, `SELECT FOR UPDATE` / `Idempotency-Key`, polling/webhook) + `=== CONTEXTO DO BUG ===` (Severidade CRÍTICA, 150+ clientes, R$ 15.000 em perdas, 45 tickets, queda de rating 4.5→3.2) + `=== TASKS TÉCNICAS SUGERIDAS ===`.
-- **Notas no Trace:** `F1-Score: 1.00` | `Clarity: 0.95` | `Precision: 0.93` | `Helpfulness: 0.94` | `Correctness: 0.965` (`12.70s`)
-- **Feedback do Juiz (`F1-Score`):** *"A resposta gerada é excelente. Ela manteve 100% de precisão, abordando todos os problemas técnicos e de negócio com terminologia correta (ex: Idempotency-Key, Circuit Breaker, DOMPurify). O recall também é total, pois cobriu todos os critérios de aceitação, requisitos técnicos e o contexto do bug definidos na resposta esperada."*
+    Critérios de Aceitação:
+    - Dado que um pagamento é aprovado no gateway
+    - Quando o gateway envia POST para /api/webhooks/payment
+    - Então o endpoint deve retornar HTTP 200
+    - E o status do pedido deve mudar de "pendente" para "aprovado"
+    - E o cliente deve receber email de confirmação
+    - E o sistema deve logar o evento para auditoria
+
+    Contexto Técnico:
+    - Endpoint está retornando HTTP 500
+    - Gateway: [nome do gateway de pagamento]
+    - Logs indicam falha no processamento do webhook
+    ```
+- **Notas Finais no Trace (Iteração 3):** `F1-Score: 1.00` | `Clarity: 1.00` | `Precision: 1.00` | `Helpfulness: 1.00` | `Correctness: 1.00` (`19.24s`)
+
+#### Exemplo 3 — Bug Médio de Lógica de Negócio: Carrinho Finaliza Compra sem Estoque
+- **Run IDs comparados:** Iteração 2 (`01a130a8-7240-7512-928f-1b7322c318e7`) → Iteração 3 (`01a130da-f1e0-7ad1-bead-ba2de916a089`)
+- **Input (`bug_report`):** `"Carrinho permite finalizar compra mesmo com produto fora de estoque. Fluxo do bug: 1. Produto tem 2 unidades em estoque..."`
+- **Diagnóstico via Trace:**
+  - Na **Iteração 2**, o trace registrou `F1-Score: 0.7875` e `Clarity: 0.85`. O juiz explicou: *"o recall é penalizado pela omissão de requisitos específicos da resposta esperada, como a sugestão de remover o item ou aguardar reposição, e a ausência da regra de negócio de reserva temporária de 15 minutos"*, além do uso de jargões (`"pedidos inconciliáveis"`, `"lock otimista/pessimista"`).
+  - Na **Iteração 3**, tornamos obrigatória a subseção `Critérios de Prevenção:` (com aviso de `"estoque limitado"` e reserva temporária de 15 minutos no checkout) e vedamos jargões extras em bugs médios.
+- **Notas Finais no Trace (Iteração 3):** `F1-Score: 1.00` | `Clarity: 1.00` | `Precision: 1.00` | `Helpfulness: 1.00` | `Correctness: 1.00` (`41.66s`)
+- **Feedback do Juiz (`Precision`):** *"A resposta gerada é idêntica à resposta esperada (Ground Truth). Não foram detectadas alucinações, pois todas as informações derivam diretamente do contexto do bug fornecido. A resposta mantém foco total na definição dos critérios de aceitação e prevenção necessários para corrigir a falha de estoque, apresentando correção factual absoluta."*
+
+#### Exemplo 4 — Bug Médio de UI/UX e Acessibilidade: Modal atrás do Menu Lateral (`z-index` < 768px)
+- **Run IDs comparados:** Iteração 2 (`01a130a8-6c5a-73e3-a17e-6e7de7dd5425`) → Iteração 3 (`01a130da-8ce9-70f1-b269-9a2fefd81f0e`)
+- **Input (`bug_report`):** `"Modal de confirmação de exclusão aparece atrás do menu lateral em telas pequenas (< 768px). Detalhes: z-index do modal: 1000, z-index do menu lateral: 1050..."`
+- **Diagnóstico via Trace:**
+  - Na **Iteração 2**, o trace apontou `F1-Score: 0.72` porque o modelo `flash-lite` tratou a subseção de acessibilidade como opcional e omitiu `Critérios de Acessibilidade:` (foco do teclado, tecla `ESC`, fechamento pelo backdrop) e a largura de `90%` da tela.
+  - Na **Iteração 3**, após tornarmos a subseção `Critérios de Acessibilidade:` obrigatória para bugs de modal/sobreposição, todas as notas subiram para `1.00`.
+- **Notas Finais no Trace (Iteração 3):** `F1-Score: 1.00` | `Clarity: 1.00` | `Precision: 1.00` | `Helpfulness: 1.00` | `Correctness: 1.00` (`25.85s`)
+- **Feedback do Juiz (`Clarity`):** *"A resposta gerada é idêntica à resposta de referência, apresentando uma estrutura impecável. A organização em formato de User Story, Critérios de Aceitação e Contexto Técnico facilita a leitura e a implementação. A linguagem é técnica, porém acessível e direta, eliminando qualquer ambiguidade sobre o problema (z-index) e a solução proposta."*
+
+#### Exemplo 5 — Bug Complexo Crítico: Sistema de Checkout com 4 Falhas Simultâneas
+- **Run IDs comparados:** Iteração 1 (`01a13093-c705-7db3-ac3d-9047df09b597`) → Iteração 3 (`01a130da-5172-7202-96f8-42cf31e20499`)
+- **Input (`bug_report`):** `"Sistema de checkout com múltiplas falhas críticas. PROBLEMAS IDENTIFICADOS: 1. SEGURANÇA - XSS no campo de cupom... 2. INTEGRAÇÃO - Gateway de pagamento retorna erro intermitente (504 / Connection pool exhausted)... 3. LÓGICA DE NEGÓCIO - Race condition em cupons (PROMO10, 147 usos)... 4. UX - Loading infinito após timeout... IMPACTO: 150+ clientes afetados, R$ 15.000 em perdas, 45 tickets, rating caiu de 4.5 para 3.2 estrelas"`
+- **Saída Gerada no Trace (Resumo Estrutural):**
+  - Parágrafo síntese + `=== USER STORY PRINCIPAL ===` + `=== CRITÉRIOS DE ACEITAÇÃO ===` subdivididos em `A. Segurança - Proteção contra XSS`, `B. Integração - Processamento confiável de pagamento`, `C. Lógica de Negócio - Controle atômico de cupons` e `D. UX - Feedback claro sobre status` + `=== CRITÉRIOS TÉCNICOS ===` (DOMPurify, CSP, aumento do pool do Postgres, retry com exponential backoff, Circuit Breaker, `SELECT FOR UPDATE` / Redis `INCR` atômico, `Idempotency-Key`, polling/webhook com timeout UI de 45s) + `=== CONTEXTO DO BUG ===` (Severidade CRÍTICA, 150+ clientes, R$ 15.000, rating 4.5→3.2, OWASP A03:2021) + `=== TASKS TÉCNICAS SUGERIDAS ===` (8 tasks categorizadas por `[SEGURANÇA]`, `[INFRA]`, `[BACKEND]`, `[FRONTEND]`, `[MONITORING]`, `[TESTES]`).
+- **Notas Finais no Trace (Iteração 3):** `F1-Score: 0.9744` | `Clarity: 0.95` | `Precision: 0.97` | `Helpfulness: 0.96` | `Correctness: 0.9722` (`15.22s`)
+- **Feedback do Juiz (`Precision`):** *"A resposta gerada é extremamente precisa e profissional. Ela traduziu os problemas técnicos em User Stories e critérios de aceitação de alta qualidade, mantendo total fidelidade aos dados fornecidos (impacto financeiro, severidade e falhas técnicas). Não houve alucinações; as sugestões técnicas (como SELECT FOR UPDATE, Circuit Breaker e Idempotência) são as melhores práticas para os problemas descritos."*
 
 ---
 
