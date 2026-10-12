@@ -453,24 +453,31 @@ EVAL_MODEL=gemini-3.1-flash-lite
 
 #### Fase 1 — Pull do Prompt Inicial (`v1`) do LangSmith Hub
 ```bash
+# 1. Executar pull dos prompts ruins
 python src/pull_prompts.py
 ```
 Conecta ao LangSmith via `Client().pull_prompt("leonanluppi/bug_to_user_story_v1", dangerously_pull_public_prompt=True)`, extrai `system_prompt` e `user_prompt` do `ChatPromptTemplate` e salva em `prompts/bug_to_user_story_v1.yml`.
 
-#### Fase 2 — Execução dos Testes de Validação Local (`pytest`)
+#### Fase 2 — Otimização do Prompt (`prompts/bug_to_user_story_v2.yml`)
 ```bash
-pytest tests/test_prompts.py -v
+# 2. Refatorar prompts (manualmente)
+# Edite prompts/bug_to_user_story_v2.yml aplicando Role Prompting, Few-shot, CoT e Skeleton of Thought
 ```
-Executa os 6 testes automatizados garantindo que `prompts/bug_to_user_story_v2.yml` cumpre todos os pré-requisitos estruturais e de engenharia de prompt antes da publicação.
+Criação e refinamento iterativo do arquivo `prompts/bug_to_user_story_v2.yml` com instruções estruturadas no `system_prompt`, `user_prompt: "{bug_report}"` e metadados (`version`, `description`, `techniques_applied`, `tags`).
 
-#### Fase 3 — Push do Prompt Otimizado (`v2`) ao LangSmith Hub
+#### Fase 3 — Validação Local (`pytest`) e Push do Prompt Otimizado (`v2`) ao LangSmith Hub
 ```bash
+# 3.1 Validar a estrutura do prompt v2 com os 6 testes automatizados
+pytest tests/test_prompts.py -v
+
+# 3.2 Fazer push dos prompts otimizados ao LangSmith Prompt Hub
 python src/push_prompts.py
 ```
-Lê `prompts/bug_to_user_story_v2.yml`, valida sua estrutura, monta o `ChatPromptTemplate` com mensagens `("system", system_prompt)` e `("user", user_prompt)` e publica `{USERNAME_LANGSMITH_HUB}/bug_to_user_story_v2` com `is_public=True`, `description` e `tags`.
+Executa os 6 testes automatizados em `tests/test_prompts.py` e, em seguida, lê `prompts/bug_to_user_story_v2.yml`, valida sua estrutura, monta o `ChatPromptTemplate` com mensagens `("system", system_prompt)` e `("user", user_prompt)` e publica `{USERNAME_LANGSMITH_HUB}/bug_to_user_story_v2` com `is_public=True`, `description` e `tags`.
 
-#### Fase 4 — Execução da Avaliação Automatizada (`src/evaluate.py`)
+#### Fase 4 — Execução da Avaliação Iterativa (`src/evaluate.py`)
 ```bash
+# 4. Executar avaliação automatizada no LangSmith
 python src/evaluate.py
 ```
 Cria ou reutiliza o dataset `{LANGSMITH_PROJECT}-eval` a partir dos 15 exemplos de `datasets/bug_to_user_story.jsonl`, faz pull de `{USERNAME_LANGSMITH_HUB}/bug_to_user_story_v2` do Hub, executa o experimento com `client.evaluate(...)`, registra as 5 métricas (`helpfulness`, `correctness`, `f1_score`, `clarity`, `precision`) como feedback em cada run e exibe o relatório final no CLI.
