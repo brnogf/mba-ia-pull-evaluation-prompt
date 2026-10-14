@@ -15,12 +15,12 @@ bug_to_user_story_v2:
       * MÉDIO: relato estruturado em um único problema central, mas acompanhado de detalhes adicionais como "Steps to reproduce", "Detalhes", "Exemplo", "Cenário", "Observações" ou "Fluxo do bug".
       * COMPLEXO: relato extenso contendo múltiplos problemas numerados (1, 2, 3, 4...) e seção explícita de impacto ("IMPACTO" ou "IMPACTO BUSINESS").
     Passo 2 - Identifique a persona exata afetada:
-      * Use uma persona específica ao contexto (ex: "Como um cliente navegando na loja", "Como um usuário criando uma conta", "Como um administrador visualizando o dashboard", "Como um gerente de vendas", "Como um vendedor gerenciando oportunidades no pipeline", "Como o sistema de e-commerce" ou "Como o sistema" para fluxos estritamente de backend/webhooks/permissões/estoque).
+      * Use uma persona específica ao contexto (ex: "Como um cliente navegando na loja", "Como um usuário criando uma conta", "Como um usuário de iOS", "Como um cliente usando Safari", "Como um administrador visualizando o dashboard", "Como um gerente de vendas", "Como um vendedor gerenciando oportunidades no pipeline", "Como um usuário do app Android", "Como um usuário em dispositivo móvel", "Como um cliente finalizando minha compra", "Como um executivo usando o sistema de relatórios", "Como um vendedor usando o app em campo", "Como o sistema de e-commerce" ou "Como o sistema" para fluxos estritamente de backend/webhooks/permissões/estoque).
       * Nunca use apenas "Como um usuário" de forma genérica sem qualificar o contexto.
     Passo 3 - Extraia todos os fatos, métricas e detalhes técnicos do relato:
-      * Em BUGS SIMPLES (relatos de 1 a 2 frases): IDs de exemplo (como "produto ID 1234") ou contagens momentâneas (como "mostra 50 mas só há 42") são apenas sintomas ilustrativos do relato. Na User Story e nos Critérios de Aceitação de bugs simples, generalize para a regra de negócio ("visualizando um produto", "corresponder ao total real de usuários ativos", "ser atualizado em tempo real", "incluir apenas usuários com status \"ativo\""), sem fixar o ID 1234 ou o número 42 como constante da regra e sem usar advérbios prolixos ("rigorosamente", "simultaneamente", "perfeitamente"). Para falhas de imagens entre navegadores (ex: Safari vs Chrome), exija carregamento correto, mesma qualidade que em outros navegadores e tempo de carregamento similar.
+      * Em BUGS SIMPLES (relatos de 1 a 2 frases): IDs de exemplo (como "produto ID 1234") ou contagens momentâneas (como "mostra 50 mas só há 42") são apenas sintomas ilustrativos do relato. Na User Story e nos Critérios de Aceitação de bugs simples, generalize para a regra de negócio ("visualizando um produto", "corresponder ao total real de usuários ativos", "ser atualizado em tempo real", "incluir apenas usuários com status \"ativo\""), sem fixar o ID 1234 ou o número 42 como constante da regra e sem usar advérbios prolixos ("rigorosamente", "simultaneamente", "perfeitamente"). Para bugs de renderização/imagens em navegadores específicos (ex: Safari vs Chrome), adote a persona "Como um cliente usando Safari, eu quero visualizar as imagens dos produtos, para que eu possa avaliar os itens antes de comprar" e defina exatamente os 5 critérios de aceitação (Dado no Safari, Quando acessa página, Então imagens carregam corretamente, E mesma qualidade que em outros navegadores, E tempo de carregamento similar), cobrindo suporte e renderização correta sem adicionar passos redundantes, seções de contexto técnico ou jargões como WebP.
       * Em BUGS MÉDIOS e COMPLEXOS: preserve fielmente os números de SLA/performance, endpoints, códigos HTTP, nomes de colunas/tabelas, cálculos, limites, logs, severidade e métricas de impacto presentes no relato.
-      * NUNCA invente ferramentas, jargões ou bibliotecas externas não citadas (como Sentry, CloudWatch, RxJava, Coroutines, DiffUtil, 60 FPS, Shimmer, WebP, Portal, "pedidos inconciliáveis", "lock otimista/pessimista" em bugs médios) quando não forem estritamente parte do padrão da solução (zero alucinações).
+      * NUNCA invente ferramentas, tarefas especulativas ou jargões externos não citados (como Sentry, CloudWatch, RxJava, DiffUtil, 60 FPS, Shimmer, WebP, Portal, "pedidos inconciliáveis", microsserviços, kubernetes) quando não forem estritamente parte da arquitetura e do padrão esperado da solução (zero alucinações).
       * Escreva 100% em português correto (use sempre "- Então", NUNCA escreva "- Entonces" em espanhol).
     Passo 4 - Aplique o esqueleto estrutural (Skeleton of Thought) correspondente à complexidade identificada e produza APENAS a User Story final (sem exibir seu rascunho mental e sem adicionar títulos Markdown como "# User Story").
 
@@ -47,29 +47,136 @@ bug_to_user_story_v2:
           - Então [resultado principal esperado e mensurável]
           - E [feedback visual imediato, mensagem de erro amigável ou adaptação]
           - E [validação complementar, atualização de contadores/estado em tempo real ou consistência]
-       Regra de concisão: Generalize números ou identificadores pontuais (ex: produto ID 1234, contagens 50 vs 42) para a regra geral de negócio do sistema ("visualizando um produto", "total real de usuários ativos em tempo real com status ativo"). Evite advérbios prolixos e nunca invente jargões extras.
+       Arquétipos de bugs simples:
+       - E-commerce / Adicionar ao carrinho (ex: botão de adicionar ao carrinho não funciona no produto ID 1234):
+         * User Story: "Como um cliente navegando na loja, eu quero adicionar produtos ao meu carrinho de compras, para que eu possa continuar comprando e finalizar minha compra depois."
+         * Critérios de Aceitação (EXATAMENTE 5 linhas):
+           - Dado que estou visualizando um produto
+           - Quando clico no botão "Adicionar ao Carrinho"
+           - Então o produto deve ser adicionado ao carrinho
+           - E devo ver uma confirmação visual
+           - E o contador do carrinho deve ser atualizado
+       - Validação de dados (ex: campo de email aceita texto sem @):
+         * User Story: "Como um usuário criando uma conta, eu quero que o sistema valide meu email corretamente, para que eu não insira um endereço inválido por engano."
+         * Critérios de Aceitação (EXATAMENTE 5 linhas):
+           - Dado que estou no formulário de cadastro
+           - Quando digito um email sem o caractere @
+           - Então devo ver uma mensagem de erro
+           - E não devo conseguir prosseguir com o cadastro
+           - E a mensagem deve explicar o formato correto
+       - Orientação mobile (ex: layout no iOS quebrado ao girar para landscape):
+         * User Story: "Como um usuário de iOS, eu quero visualizar minha tela de perfil em modo paisagem, para que eu possa usar o app em qualquer orientação sem problemas visuais."
+         * Critérios de Aceitação (EXATAMENTE 5 linhas):
+           - Dado que estou na tela de perfil no iOS
+           - Quando giro o dispositivo para modo paisagem
+           - Então o layout deve se adaptar corretamente
+           - E todos os elementos devem permanecer visíveis e alinhados
+           - E não deve haver sobreposição de componentes
+       - Lógica e métricas (ex: dashboard mostra contagem errada de usuários ativos, 50 vs 42):
+         * User Story: "Como um administrador visualizando o dashboard, eu quero ver a contagem correta de usuários ativos, para que eu possa tomar decisões baseadas em dados precisos."
+         * Critérios de Aceitação (EXATAMENTE 5 linhas):
+           - Dado que acesso o dashboard como admin
+           - Quando visualizo a métrica de usuários ativos
+           - Então o número exibido deve corresponder ao total real de usuários ativos
+           - E o valor deve ser atualizado em tempo real
+           - E deve incluir apenas usuários com status "ativo"
+       - Compatibilidade de mídia/navegadores (ex: imagens de produtos não aparecem no Safari, no Chrome funciona normal):
+         * User Story: "Como um cliente usando Safari, eu quero visualizar as imagens dos produtos, para que eu possa avaliar os itens antes de comprar."
+         * Critérios de Aceitação (EXATAMENTE 5 linhas):
+           - Dado que estou navegando em um navegador Safari
+           - Quando acesso a página de um produto
+           - Então as imagens do produto devem carregar corretamente
+           - E devem ter a mesma qualidade que em outros navegadores
+           - E o tempo de carregamento deve ser similar
 
     B) Para BUGS MÉDIOS (relatos estruturados com 1 problema central acompanhado de "Steps to reproduce:", "Detalhes:", "Exemplo:", "Cenário:", "Observações:" ou "Fluxo do bug:"):
        Entregue a User Story, os "Critérios de Aceitação:" Given-When-Then, a subseção intermediária obrigatória conforme o arquétipo técnico e a seção final de Contexto:
        1. Integrações, Webhooks e APIs Externas (ex: callbacks de pagamento, endpoints retornando HTTP 500):
-          - Persona técnica: "Como o sistema de e-commerce..." ou persona de backend correspondente.
-          - "Critérios de Aceitação:" (6 linhas) cobrindo aprovação no gateway, POST no endpoint, retorno HTTP 200, transição de status para aprovado, envio de email de confirmação ao cliente e logging para auditoria.
-          - Seção final "Contexto Técnico:" (3 linhas) destacando status code com falha, gateway/provedor ("[nome do gateway de pagamento]" se não especificado) e logs de falha no processamento.
+          - Persona técnica: "Como o sistema de e-commerce, eu quero receber notificações de pagamento aprovado via webhook, para que o status dos pedidos seja atualizado automaticamente após confirmação do pagamento."
+          - "Critérios de Aceitação:" (EXATAMENTE 6 linhas) cobrindo aprovação no gateway, POST no endpoint /api/webhooks/payment, retorno HTTP 200, transição de status para aprovado, envio de email de confirmação ao cliente e logging para auditoria.
+          - Seção final OBRIGATÓRIA "Contexto Técnico:" (EXATAMENTE 3 linhas):
+            - Endpoint está retornando HTTP 500
+            - Gateway: [nome do gateway de pagamento]
+            - Logs indicam falha no processamento do webhook
        2. Performance, Consultas SQL e Relatórios Volumosos (ex: queries sem índice, timeout > 60s, relatórios > 1000 registros):
-          - Persona: "Como um gerente de vendas..." ou gestor responsável pelo domínio.
-          - "Critérios de Aceitação:" (5 linhas) cobrindo volume de registros, filtros aplicados, SLA estrito de conclusão ("em menos de 30 segundos"), ausência de timeout e consistência em horário de pico.
-          - Seção final "Contexto Técnico:" (4 linhas) detalhando ausência de índice nas colunas de busca/data, tempo atual vs tempo esperado (<30s) e sugestão de índice composto/otimização SQL.
+          - Persona: "Como um gerente de vendas, eu quero gerar relatórios de vendas rapidamente mesmo com grandes volumes de dados, para que eu possa analisar informações sem esperar longos períodos."
+          - "Critérios de Aceitação:" (EXATAMENTE 5 linhas) cobrindo solicitação de relatório com mais de 1000 registros, aplicação de filtros e clique em "Gerar Relatório", SLA estrito de conclusão ("em menos de 30 segundos"), ausência de timeout no navegador e desempenho consistente em horário de pico.
+          - Seção final OBRIGATÓRIA "Contexto Técnico:" (EXATAMENTE 4 linhas):
+            - Problema identificado: falta de índice na coluna data_venda
+            - Performance atual: >120s para 1000+ registros
+            - Performance esperada: <30s para qualquer volume
+            - Sugestão: adicionar índice e otimizar query SQL
        3. Segurança, Permissões e Controle de Acesso (ex: endpoints sem validação de permissão / IDOR):
-          - Persona: "Como o sistema, eu quero validar permissões...".
-          - "Critérios de Aceitação:" (5 linhas) para usuário comum recebendo HTTP 403 Forbidden para recursos alheios e acessando apenas dados próprios.
-          - Subseção OBRIGATÓRIA "Critérios Adicionais para Admins:" (4 linhas) com acesso completo HTTP 200 e logging de auditoria.
-          - Seção final OBRIGATÓRIA "Contexto de Segurança:" (4 linhas) com Severidade ALTA, OWASP A01:2021, dados sensíveis expostos e implementação de middleware de autorização.
+          - Persona: "Como o sistema, eu quero validar permissões antes de retornar dados de usuários, para que apenas usuários autorizados possam acessar informações pessoais de outros usuários."
+          - "Critérios de Aceitação:" (EXATAMENTE 5 linhas) para usuário comum recebendo HTTP 403 Forbidden para GET /api/users/:id de outro usuário, acessando apenas dados próprios e administradores acessando dados de todos.
+          - Subseção OBRIGATÓRIA "Critérios Adicionais para Admins:" (EXATAMENTE 4 linhas) com administrador acessando GET /api/users/:id de qualquer usuário, recebendo dados completos com HTTP 200 e registro em log de auditoria.
+          - Seção final OBRIGATÓRIA "Contexto de Segurança:" (EXATAMENTE 4 linhas) com Severidade: ALTA, Tipo: Quebra de controle de acesso (OWASP A01:2021), Dados expostos: email, telefone, endereço e Ação: Implementar middleware de autorização.
        4. Lógica de Negócio, Concorrência e Cálculos Financeiros:
-          - Para cálculos/descontos: User Story de propostas precisas + Critérios com fórmula (soma × (1 - desconto%)) + Subseção OBRIGATÓRIA "Exemplo de Cálculo:" (5 linhas: Produto A, Produto B, Subtotal, Desconto, Total) + "Contexto Técnico:" apontando erro vs esperado.
-          - Para concorrência/estoque esgotado: Persona de sistema + Critérios validando estoque em tempo real com bloqueio e sugestão amigável + Subseção OBRIGATÓRIA "Critérios de Prevenção:" (aviso de "estoque limitado" e reserva temporária de 15 minutos no checkout) + "Contexto do Bug:".
+          - Para cálculos/descontos no pipeline:
+            * Persona: "Como um vendedor gerenciando oportunidades no pipeline, eu quero que o valor total seja calculado corretamente quando aplico descontos, para que eu possa apresentar propostas precisas aos clientes."
+            * "Critérios de Aceitação:" (EXATAMENTE 5 linhas) cobrindo oportunidade com múltiplos produtos, aplicação de desconto percentual, desconto aplicado no valor total de todos os produtos, valor final sendo (soma dos produtos) × (1 - desconto%) e detalhamento com subtotal, desconto e total.
+            * Subseção OBRIGATÓRIA "Exemplo de Cálculo:" (EXATAMENTE 5 linhas):
+              - Produto A: R$ 1.000
+              - Produto B: R$ 500
+              - Subtotal: R$ 1.500
+              - Desconto 10%: -R$ 150
+              - Total: R$ 1.350
+            * Seção final OBRIGATÓRIA "Contexto Técnico:" (EXATAMENTE 2 linhas):
+              - Bug atual: desconto sendo aplicado apenas no primeiro produto
+              - Resultado incorreto: R$ 1.400 (deveria ser R$ 1.350)
+          - Para concorrência e finalização de compra com produto fora de estoque:
+            * Persona: "Como o sistema de e-commerce, eu quero validar disponibilidade de estoque antes de permitir finalização de compra, para que não sejam criados pedidos que não podem ser atendidos."
+            * "Critérios de Aceitação:" (EXATAMENTE 6 linhas):
+              - Dado que um produto está no carrinho
+              - Quando o cliente tenta finalizar a compra
+              - Então o sistema deve validar estoque disponível em tempo real
+              - E se o produto estiver fora de estoque, deve bloquear a compra
+              - E deve exibir mensagem clara sobre a indisponibilidade
+              - E deve sugerir remover o item ou aguardar reposição
+            * Subseção OBRIGATÓRIA "Critérios de Prevenção:" (EXATAMENTE 4 linhas):
+              - Quando produto ficar sem estoque
+              - E houver itens em carrinhos de outros clientes
+              - Então deve exibir aviso "estoque limitado" ao adicionar
+              - E deve reservar estoque temporariamente (15 minutos) ao ir para checkout
+            * Seção final OBRIGATÓRIA "Contexto do Bug:" (EXATAMENTE 3 linhas):
+              - Problema: validação de estoque não é feita no checkout
+              - Impacto: pedidos criados sem possibilidade de atendimento
+              - Cenário crítico: múltiplos clientes comprando último item
        5. Interface Mobile, Acessibilidade e Estabilidade:
-          - Para sobreposição de modal em mobile (< 768px, z-index): User Story responsiva + Critérios (modal sobre todos os elementos, backdrop desfocado, largura >= 90%) + Subseção OBRIGATÓRIA "Critérios de Acessibilidade:" (foco no modal, fechar com ESC, fechar no backdrop) + "Contexto Técnico:" (ajustar z-index).
-          - Para travamento/ANR mobile com listas longas (> 50 itens): User Story de navegação fluida + Critérios (carregar < 2s sem congelamento ou ANR) + Subseção OBRIGATÓRIA "Critérios Técnicos:" (paginação de 20 itens, background thread, RecyclerView com ViewHolder pattern, scroll infinito) + "Contexto do Bug:".
+          - Para sobreposição de modal em mobile (< 768px, z-index):
+            * Persona: "Como um usuário em dispositivo móvel, eu quero que modais importantes apareçam acima de todos os outros elementos, para que eu possa interagir com eles sem precisar fechar outros componentes."
+            * "Critérios de Aceitação:" (EXATAMENTE 6 linhas):
+              - Dado que estou em uma tela com largura menor que 768px
+              - Quando aciono uma ação que abre um modal de confirmação
+              - Então o modal deve aparecer acima de todos os elementos da página
+              - E o menu lateral deve ficar desfocado (backdrop)
+              - E todos os botões do modal devem ser clicáveis
+              - E o modal deve ocupar pelo menos 90% da largura da tela
+            * Subseção OBRIGATÓRIA "Critérios de Acessibilidade:" (EXATAMENTE 3 linhas):
+              - O foco do teclado deve ir para o modal
+              - Deve ser possível fechar com ESC
+              - O backdrop deve fechar ao clicar fora
+            * Seção final OBRIGATÓRIA "Contexto Técnico:" (EXATAMENTE 3 linhas):
+              - Bug atual: z-index modal (1000) < z-index menu (1050)
+              - Solução: ajustar z-index do modal para > 1050
+              - Devices afetados: mobile e tablets (< 768px)
+          - Para travamento/ANR mobile com listas longas (> 50 itens):
+            * Persona: "Como um usuário do app Android, eu quero visualizar minhas notificações rapidamente sem travamentos, para que eu possa acessar informações importantes sem frustrações."
+            * "Critérios de Aceitação:" (EXATAMENTE 5 linhas):
+              - Dado que tenho mais de 50 notificações
+              - Quando abro a tela de notificações
+              - Então a tela deve carregar em menos de 2 segundos
+              - E não deve ocorrer congelamento da interface
+              - E não deve aparecer mensagem de ANR
+            * Subseção OBRIGATÓRIA "Critérios Técnicos:" (EXATAMENTE 4 linhas):
+              - Implementar paginação (carregar 20 itens por vez)
+              - Carregar dados em background thread
+              - Usar RecyclerView com ViewHolder pattern
+              - Implementar scroll infinito para carregar mais itens
+            * Seção final OBRIGATÓRIA "Contexto do Bug:" (EXATAMENTE 3 linhas):
+              - Problema: lista sem paginação carregando na Thread principal
+              - Sintoma: ANR após 50+ itens
+              - Tempo de tela congelada: 5-10 segundos
 
     C) Para BUGS COMPLEXOS (múltiplos problemas numerados 1..4 + seção IMPACTO / IMPACTO BUSINESS):
        Entregue obrigatoriamente todas as seções abaixo usando os delimitadores exatos:
@@ -78,12 +185,82 @@ bug_to_user_story_v2:
           - "Título: [Título claro e abrangente]"
           - "Descrição:" seguido de "Como um [persona detalhada], eu quero [ação detalhada], para que [benefício estratégico]."
        3. "=== CRITÉRIOS DE ACEITAÇÃO ===" subdividido em itens "A. [Tema]:", "B. [Tema]:", "C. [Tema]:", "D. [Tema]:" cobrindo cada um dos problemas reportados com "- Dado que", "- Quando", "- Então" e múltiplos "- E" com metas mensuráveis (SLAs, limites de memória, retries, locks, etc.).
-       4. "=== CRITÉRIOS TÉCNICOS ===" detalhando a solução arquitetural para cada frente (ex: sanitização/DOMPurify/CSP, pool de conexões/retry com backoff/circuit breaker, controle atômico com SELECT FOR UPDATE ou Redis, resolução de query N+1 com JOIN e materialized views + bloco SQL de exemplo com LEFT JOIN e GROUP BY, função centralizada calculateMRR, estratégia híbrida de cache e invalidação por eventos, background jobs com streaming para exportação CSV, CRDTs/Vector Clocks, protocolo de upload em chunks de 5MB com checkpoints, operation log JSON ordenado por client_timestamp, algoritmo de processamento em lotes de 50 itens com controle de memória e GC).
-       5. "=== CONTEXTO DO BUG ===" documentando:
-          - "Severidade: CRÍTICA"
-          - Impacto detalhado com todos os números do relato (clientes afetados, perdas financeiras, tickets, rating, NPS, churn, horas de suporte)
-          - Lista numerada dos problemas identificados/técnicos e componentes/SLAs/arquitetura afetados.
-       6. "=== TASKS TÉCNICAS SUGERIDAS ===" listando as tarefas numeradas com tags entre colchetes como [SEGURANÇA], [INFRA], [BACKEND], [FRONTEND], [MONITORING], [TESTES], [PERF], [CACHE], [LOGIC], [EXPORT], [MEMORY], [UPLOAD], [CONFLICT], [ORDER], agrupadas em Sprints ou Fases quando apropriado (e para sincronização mobile offline-first, inclua ao final a seção "=== MÉTRICAS DE SUCESSO ===" com "Antes vs Depois:").
+       4. "=== CRITÉRIOS TÉCNICOS ===" detalhando a solução arquitetural para cada frente de forma estritamente ancorada no relato:
+          - Para checkout e-commerce (XSS, pool Postgres, cupons, timeout): sanitização de input (DOMPurify/CSP), aumento do connection pool Postgres e retry com exponential backoff + circuit breaker, controle atômico de cupons com SELECT FOR UPDATE ou Redis INCR + idempotency key, polling/webhook com timeout na UI de 45s.
+          - Para relatórios gerenciais SaaS (N+1, MRR, cache Redis, CSV): eager loading com JOIN eliminando N+1 + bloco SQL de exemplo (SELECT ... LEFT JOIN ... GROUP BY), função centralizada calculateMRR() documentada e com testes, estratégia híbrida de cache (sem cache para tempo real, 5min curto, eventos para invalidação), background jobs para exportação com streaming CSV (1000 linhas/chunk) e timeout 30min.
+          - Para sincronização offline-first mobile (conflitos, anexos grandes, ordenação, OOM em lote):
+            * Resolução de Conflitos - CRDT ou Vector Clocks (auto-merge para campos independentes, manual para conflitantes, histórico de versões).
+            * Upload Resiliente - Chunked Upload com Checkpoints (protocolo com chunks de 5MB, upload_id, PUT por chunk, retomada de status).
+            * Ordenação - Operation Log com Timestamps (estrutura JSON com id, type, entity, client_timestamp, device_id; servidor aplica por client_timestamp).
+            * Sincronização em Lote - Batch Processing (algoritmo dividindo em lotes de 50 itens via SQLite, envio em POST /api/sync/batch, liberação de memória, rate limit 5 lotes/s e retry exponential backoff).
+            * Memória - Streaming e Garbage Collection (SQLite cursor, processamento em streaming, force GC após lote, pausar sync se memória > 400MB).
+       5. "=== CONTEXTO DO BUG ===" documentando fielmente:
+          - "Severidade: CRÍTICA" (ou severidade reportada)
+          - "Impacto:" (ou "Impacto Business:") detalhando com precisão todos os números do relato (clientes afetados, perdas financeiras, tickets, rating, NPS, churn, horas de suporte).
+          - "Problemas Identificados:" (ou "Problemas Técnicos:") lista numerada de 1 a 4 com os problemas centrais.
+          - "Múltiplos Componentes Afetados:" (ou "App Architecture:" / "SLA Atual vs Esperado:") listando as camadas afetadas conforme o arquétipo.
+       6. "=== TASKS TÉCNICAS SUGERIDAS ===" delimitadas e estritamente focadas nos problemas e arquitetura relatados (PROIBIDO gerar tarefas especulativas não citadas, como microsserviços, kubernetes, GraphQL, biometria ou reescrita de sistemas):
+          - Para sincronização offline-first mobile: estruture obrigatoriamente em EXATAMENTE 4 Fases enxutas:
+            Fase 1 - Hotfix Urgente (3 dias):
+            1. [MEMORY] Implementar sync em lotes de 50 itens
+            2. [UPLOAD] Adicionar retry exponential backoff
+            3. [MONITOR] Adicionar logging de erros de sync
+
+            Fase 2 - Core Fixes (2 semanas):
+            4. [CONFLICT] Implementar detecção de conflitos básica
+            5. [CONFLICT] UI para resolver conflitos manualmente
+            6. [UPLOAD] Implementar chunked upload com resumable
+            7. [ORDER] Adicionar client_timestamp em todas operações
+            8. [ORDER] Servidor aplicar ops em ordem de timestamp
+
+            Fase 3 - Robust Architecture (3 semanas):
+            9. [CONFLICT] Migrar para CRDTs para auto-merge
+            10. [SYNC] Implementar operation log persistente
+            11. [PERF] Otimizar queries SQLite (índices)
+            12. [MONITOR] Dashboard de sync health
+
+            Fase 4 - Scale & Polish (1 semana):
+            13. [UX] Melhorar feedback de progresso de sync
+            14. [UX] Permitir pausar/retomar sync
+            15. [TESTS] Testes de sync com 10k+ operações
+            16. [DOCS] Documentar arquitetura de sync
+
+            E inclua ao final a seção OBRIGATÓRIA:
+            === MÉTRICAS DE SUCESSO ===
+
+            Antes vs Depois:
+            - Perda de dados: 30 casos/semana → 0 casos/semana
+            - Crash rate em sync: 15% → < 1%
+            - NPS: 4.2 → > 7.5
+            - Sync success rate: 75% → > 99%
+            - Tempo de sync (1000 itens): crash → < 60s
+            - Memória durante sync: 850MB → < 500MB
+          - Para sistema de relatórios gerenciais SaaS B2B: estruture em 3 Sprints:
+            Sprint 1 - Quick Wins (1 semana):
+            1. [PERF] Adicionar índices nas FKs company_id
+            2. [CACHE] Reduzir TTL de 24h para 5min em métricas críticas
+            3. [LOGIC] Documentar fórmula MRR acordada
+
+            Sprint 2 - Core Fixes (2 semanas):
+            4. [PERF] Refatorar queries para eliminar N+1
+            5. [LOGIC] Centralizar cálculo MRR em função única
+            6. [CACHE] Implementar invalidação automática via eventos
+            7. [EXPORT] Migrar exports para background jobs
+
+            Sprint 3 - Scale & Monitor (1 semana):
+            8. [PERF] Criar materialized views para dashboards
+            9. [MONITOR] Adicionar APM para detectar slow queries
+            10. [TESTS] Testes de carga para 10k users por empresa
+            11. [DOCS] Documentar arquitetura de cache e jobs
+          - Para checkout e-commerce crítico: liste as 8 tasks numeradas:
+            1. [SEGURANÇA] Implementar sanitização de input no cupom
+            2. [INFRA] Aumentar Postgres connection pool
+            3. [BACKEND] Adicionar retry pattern no payment service
+            4. [BACKEND] Implementar controle atômico de cupons
+            5. [FRONTEND] Melhorar UX com feedback de status
+            6. [MONITORING] Adicionar alertas para timeout rate > 5%
+            7. [TESTES] Criar testes de carga para checkout
+            8. [TESTES] Testes de race condition em cupons
 
     ===================================================================
     3. TRATAMENTO DE EDGE CASES
