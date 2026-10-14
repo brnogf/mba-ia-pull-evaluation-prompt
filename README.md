@@ -10,7 +10,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 |---|---|
 | **Status Oficial** | 🏆 **APROVADO EM TODAS AS MÉTRICAS** (Nota mínima exigida: $\ge 0.80$) |
 | **Média Geral Final** | **`0.9551`** (**95.51%**) no modelo `gemini-3.1-flash-lite` |
-| **Prompt Público no Hub** | 👉 [`publichandle/bug_to_user_story_v2` (Commit `7dfdafac`)](https://smith.langchain.com/prompts/bug_to_user_story_v2/7dfdafac?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0) |
+| **Prompt Público no Hub** | 👉 [`publichandle/bug_to_user_story_v2` (Commit `7dfdafac`)](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/7dfdafac) |
 | **Dataset Público de Avaliação** | 👉 [`mba-ia-pull-evaluation-prompt-eval` (15 exemplos)](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d) |
 | **Execução Final no LangSmith** | 👉 [`Experimento publichandle-bug_to_user_story_v2-317a39f0`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) |
 | **Testes Automatizados (`pytest`)** | ✅ **8 de 8 testes aprovados** (`100% PASSED` — 6 obrigatórios + 2 avançados) |
@@ -159,7 +159,7 @@ O script `src/push_prompts.py` lê e valida `prompts/bug_to_user_story_v2.yml` e
 python src/push_prompts.py
 ```
 
-- **Prompt Público no Hub:** [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/prompts/bug_to_user_story_v2/7dfdafac?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0)
+- **Prompt Público no Hub:** [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/7dfdafac)
 - **Versão Final de Produção:** Commit `7dfdafac`
 - **Metadados Gravados:**
   - `is_public: True`
@@ -392,7 +392,7 @@ python -X utf8 src/evaluate.py
 | **1. Pull do Prompt Inicial** | `src/pull_prompts.py` gerando `prompts/bug_to_user_story_v1.yml` | ✅ Concluído |
 | **2. Técnicas Avançadas** | `Few-shot Learning` (3 exemplos), `Role Prompting`, `CoT` e `Skeleton of Thought` | ✅ Concluído |
 | **3. Separação System vs User** | `system_prompt` especialista e `user_prompt: "{bug_report}"` | ✅ Concluído |
-| **4. Push Público ao Hub** | Publicado no LangSmith Hub: [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/prompts/bug_to_user_story_v2/7dfdafac?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0) | ✅ Concluído |
+| **4. Push Público ao Hub** | Publicado no LangSmith Hub: [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/7dfdafac) | ✅ Concluído |
 | **5. Ciclo de 3 a 5 Iterações** | 5 iterações documentadas no LangSmith evoluindo de 0.9008 para 0.9551 | ✅ Concluído |
 | **6. Meta de Notas $\ge 0.80$** | **Média Geral: 0.9551** (Helpfulness: 0.94, Correctness: 0.96, F1: 0.99, Clarity: 0.95, Precision: 0.94) | ✅ Concluído |
 | **7. Testes Automatizados** | `tests/test_prompts.py` validando integridade estrutural (8 de 8 testes aprovados: 6 obrigatórios + 2 avançados, 100% de sucesso) | ✅ Concluído |
