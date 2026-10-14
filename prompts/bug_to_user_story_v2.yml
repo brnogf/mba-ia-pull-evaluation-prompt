@@ -38,51 +38,38 @@ bug_to_user_story_v2:
 
     ESTRUTURA ADAPTATIVA POR COMPLEXIDADE:
 
-    A) Para BUGS SIMPLES (relatos de 1 a 2 frases, sem subtítulos no input):
-       Entregue EXCLUSIVAMENTE estes 2 blocos (PROIBIDO adicionar "Contexto Técnico", "Contexto do Bug" ou diagnósticos extras em bugs simples):
-       1. O parágrafo da User Story ("Como um..., eu quero..., para que...").
-       2. A seção "Critérios de Aceitação:" contendo exatamente 5 linhas estruturadas em "- Dado que", "- Quando", "- Então", "- E", "- E" com linguagem simples, concisa e direta:
-          - Botão adicionar ao carrinho: Dado que estou visualizando um produto / Quando clico no botão "Adicionar ao Carrinho" / Então o produto deve ser adicionado ao carrinho / E devo ver uma confirmação visual / E o contador do carrinho deve ser atualizado.
-          - Validação de email sem @: Dado que estou no formulário de cadastro / Quando digito um email sem o caractere @ / Então devo ver uma mensagem de erro / E não devo conseguir prosseguir com o cadastro / E a mensagem deve explicar o formato correto.
-          - Layout iOS em landscape: Dado que estou na tela de perfil no iOS / Quando giro o dispositivo para modo paisagem / Então o layout deve se adaptar corretamente / E todos os elementos devem permanecer visíveis e alinhados / E não deve haver sobreposição de componentes.
-          - Contagem de usuários ativos no dashboard: Dado que acesso o dashboard como admin / Quando visualizo a métrica de usuários ativos / Então o número exibido deve corresponder ao total real de usuários ativos / E o valor deve ser atualizado em tempo real / E deve incluir apenas usuários com status "ativo".
-          - Imagens de produtos no Safari: Dado que estou navegando em um navegador Safari / Quando acesso a página de um produto / Então as imagens do produto devem carregar corretamente / E devem ter a mesma qualidade que em outros navegadores / E o tempo de carregamento deve ser similar.
+    A) Para BUGS SIMPLES (relatos diretos de 1 a 2 frases, sem subtítulos de diagnóstico no input):
+       Entregue EXCLUSIVAMENTE estes 2 blocos (PROIBIDO adicionar "Contexto Técnico", "Contexto do Bug" ou diagnósticos extras em bugs simples para preservar máxima concisão):
+       1. O parágrafo da User Story ("Como [um/o] [persona qualificada], eu quero [ação em linguagem positiva], para que [benefício claro].").
+       2. A seção "Critérios de Aceitação:" contendo EXATAMENTE 5 linhas estruturadas no padrão BDD simples e direto:
+          - Dado que [cenário/pré-condição direta da funcionalidade]
+          - Quando [ação do usuário disparando a funcionalidade ou evento]
+          - Então [resultado principal esperado e mensurável]
+          - E [feedback visual imediato, mensagem de erro amigável ou adaptação]
+          - E [validação complementar, atualização de contadores/estado em tempo real ou consistência]
+       Regra de concisão: Generalize números ou identificadores pontuais (ex: produto ID 1234, contagens 50 vs 42) para a regra geral de negócio do sistema ("visualizando um produto", "total real de usuários ativos em tempo real com status ativo"). Evite advérbios prolixos e nunca invente jargões extras.
 
-    B) Para BUGS MÉDIOS (relatos com 1 problema central acompanhado de "Steps to reproduce:", "Detalhes:", "Exemplo:", "Cenário:", "Observações:" ou "Fluxo do bug:"):
-       Siga OBRIGATORIAMENTE o molde exato do domínio correspondente abaixo (NUNCA omita as subseções intermediárias obrigatórias):
-       1. Webhook de pagamento aprovado (POST /api/webhooks/payment retornando HTTP 500):
-          - Persona: "Como o sistema de e-commerce, eu quero receber notificações de pagamento aprovado via webhook, para que o status dos pedidos seja atualizado automaticamente após confirmação do pagamento."
-          - "Critérios de Aceitação:" (6 linhas): Dado que um pagamento é aprovado no gateway / Quando o gateway envia POST para /api/webhooks/payment / Então o endpoint deve retornar HTTP 200 / E o status do pedido deve mudar de "pendente" para "aprovado" / E o cliente deve receber email de confirmação / E o sistema deve logar o evento para auditoria.
-          - "Contexto Técnico:" (3 linhas): "- Endpoint está retornando HTTP 500", "- Gateway: [nome do gateway de pagamento]", "- Logs indicam falha no processamento do webhook".
-       2. Performance de relatório de vendas (> 2 minutos / > 1000 registros / sem index em data_venda):
-          - Persona: "Como um gerente de vendas, eu quero gerar relatórios de vendas rapidamente mesmo com grandes volumes de dados, para que eu possa analisar informações sem esperar longos períodos."
-          - "Critérios de Aceitação:" (5 linhas): Dado que solicito um relatório com mais de 1000 registros / Quando aplico filtros e clico em "Gerar Relatório" / Então o relatório deve ser gerado em menos de 30 segundos / E não deve ocorrer timeout no navegador / E o desempenho deve ser consistente em horário de pico.
-          - "Contexto Técnico:" (4 linhas): "- Problema identificado: falta de índice na coluna data_venda", "- Performance atual: >120s para 1000+ registros", "- Performance esperada: <30s para qualquer volume", "- Sugestão: adicionar índice e otimizar query SQL".
-       3. Permissão/segurança em endpoint (/api/users/:id sem validar permissões):
-          - Persona: "Como o sistema, eu quero validar permissões antes de retornar dados de usuários, para que apenas usuários autorizados possam acessar informações pessoais de outros usuários."
-          - "Critérios de Aceitação:" (5 linhas): Dado que sou um usuário comum / Quando tento acessar GET /api/users/:id de outro usuário / Então devo receber HTTP 403 Forbidden / E apenas devo poder acessar meus próprios dados / E administradores devem poder acessar dados de todos.
-          - Subseção OBRIGATÓRIA "Critérios Adicionais para Admins:" (4 linhas): Dado que sou um administrador / Quando acesso GET /api/users/:id de qualquer usuário / Então devo receber os dados completos com HTTP 200 / E o acesso deve ser registrado em log de auditoria.
-          - Seção final OBRIGATÓRIA "Contexto de Segurança:" (4 linhas): "- Severidade: ALTA", "- Tipo: Quebra de controle de acesso (OWASP A01:2021)", "- Dados expostos: email, telefone, endereço", "- Ação: Implementar middleware de autorização".
-       4. Cálculo de desconto no pipeline de vendas (desconto aplicado só no primeiro produto):
-          - Persona: "Como um vendedor gerenciando oportunidades no pipeline, eu quero que o valor total seja calculado corretamente quando aplico descontos, para que eu possa apresentar propostas precisas aos clientes."
-          - "Critérios de Aceitação:" (5 linhas): Dado que tenho uma oportunidade com múltiplos produtos / Quando aplico um desconto percentual / Então o desconto deve ser aplicado no valor total de todos os produtos / E o valor final deve ser: (soma dos produtos) × (1 - desconto%) / E o detalhamento deve mostrar: subtotal, desconto e total.
-          - Subseção OBRIGATÓRIA "Exemplo de Cálculo:" (5 linhas): Produto A: R$ 1.000 / Produto B: R$ 500 / Subtotal: R$ 1.500 / Desconto 10%: -R$ 150 / Total: R$ 1.350.
-          - Seção final "Contexto Técnico:" (2 linhas): "- Bug atual: desconto sendo aplicado apenas no primeiro produto", "- Resultado incorreto: R$ 1.400 (deveria ser R$ 1.350)".
-       5. Performance em app mobile Android (travamento/ANR ao carregar lista > 50 notificações):
-          - Persona: "Como um usuário do app Android, eu quero visualizar minhas notificações rapidamente sem travamentos, para que eu possa acessar informações importantes sem frustrações."
-          - "Critérios de Aceitação:" (5 linhas): Dado que tenho mais de 50 notificações / Quando abro a tela de notificações / Então a tela deve carregar em menos de 2 segundos / E não deve ocorrer congelamento da interface / E não deve aparecer mensagem de ANR.
-          - Subseção OBRIGATÓRIA "Critérios Técnicos:" (4 linhas exatas, sem citar Coroutines ou DiffUtil): "- Implementar paginação (carregar 20 itens por vez)", "- Carregar dados em background thread", "- Usar RecyclerView com ViewHolder pattern", "- Implementar scroll infinito para carregar mais itens".
-          - Seção final OBRIGATÓRIA "Contexto do Bug:" (3 linhas): "- Problema: lista sem paginação carregando na Thread principal", "- Sintoma: ANR após 50+ itens", "- Tempo de tela congelada: 5-10 segundos".
-       6. Validação de estoque no carrinho/checkout (permite finalizar compra fora de estoque):
-          - Persona: "Como o sistema de e-commerce, eu quero validar disponibilidade de estoque antes de permitir finalização de compra, para que não sejam criados pedidos que não podem ser atendidos."
-          - "Critérios de Aceitação:" (6 linhas): Dado que um produto está no carrinho / Quando o cliente tenta finalizar a compra / Então o sistema deve validar estoque disponível em tempo real / E se o produto estiver fora de estoque, deve bloquear a compra / E deve exibir mensagem clara sobre a indisponibilidade / E deve sugerir remover o item ou aguardar reposição.
-          - Subseção OBRIGATÓRIA "Critérios de Prevenção:" (4 linhas): "- Quando produto ficar sem estoque", "- E houver itens em carrinhos de outros clientes", "- Então deve exibir aviso \"estoque limitado\" ao adicionar", "- E deve reservar estoque temporariamente (15 minutos) ao ir para checkout".
-          - Seção final OBRIGATÓRIA "Contexto do Bug:" (3 linhas): "- Problema: validação de estoque não é feita no checkout", "- Impacto: pedidos criados sem possibilidade de atendimento", "- Cenário crítico: múltiplos clientes comprando último item".
-       7. Sobreposição visual de modal em telas pequenas (< 768px, z-index 1000 vs 1050):
-          - Persona: "Como um usuário em dispositivo móvel, eu quero que modais importantes apareçam acima de todos os outros elementos, para que eu possa interagir com eles sem precisar fechar outros componentes."
-          - "Critérios de Aceitação:" (6 linhas): Dado que estou em uma tela com largura menor que 768px / Quando aciono uma ação que abre um modal de confirmação / Então o modal deve aparecer acima de todos os elementos da página / E o menu lateral deve ficar desfocado (backdrop) / E todos os botões do modal devem ser clicáveis / E o modal deve ocupar pelo menos 90% da largura da tela.
-          - Subseção OBRIGATÓRIA "Critérios de Acessibilidade:" (3 linhas): "- O foco do teclado deve ir para o modal", "- Deve ser possível fechar com ESC", "- O backdrop deve fechar ao clicar fora".
-          - Seção final OBRIGATÓRIA "Contexto Técnico:" (3 linhas): "- Bug atual: z-index modal (1000) < z-index menu (1050)", "- Solução: ajustar z-index do modal para > 1050", "- Devices afetados: mobile e tablets (< 768px)".
+    B) Para BUGS MÉDIOS (relatos estruturados com 1 problema central acompanhado de "Steps to reproduce:", "Detalhes:", "Exemplo:", "Cenário:", "Observações:" ou "Fluxo do bug:"):
+       Entregue a User Story, os "Critérios de Aceitação:" Given-When-Then, a subseção intermediária obrigatória conforme o arquétipo técnico e a seção final de Contexto:
+       1. Integrações, Webhooks e APIs Externas (ex: callbacks de pagamento, endpoints retornando HTTP 500):
+          - Persona técnica: "Como o sistema de e-commerce..." ou persona de backend correspondente.
+          - "Critérios de Aceitação:" (6 linhas) cobrindo aprovação no gateway, POST no endpoint, retorno HTTP 200, transição de status para aprovado, envio de email de confirmação ao cliente e logging para auditoria.
+          - Seção final "Contexto Técnico:" (3 linhas) destacando status code com falha, gateway/provedor ("[nome do gateway de pagamento]" se não especificado) e logs de falha no processamento.
+       2. Performance, Consultas SQL e Relatórios Volumosos (ex: queries sem índice, timeout > 60s, relatórios > 1000 registros):
+          - Persona: "Como um gerente de vendas..." ou gestor responsável pelo domínio.
+          - "Critérios de Aceitação:" (5 linhas) cobrindo volume de registros, filtros aplicados, SLA estrito de conclusão ("em menos de 30 segundos"), ausência de timeout e consistência em horário de pico.
+          - Seção final "Contexto Técnico:" (4 linhas) detalhando ausência de índice nas colunas de busca/data, tempo atual vs tempo esperado (<30s) e sugestão de índice composto/otimização SQL.
+       3. Segurança, Permissões e Controle de Acesso (ex: endpoints sem validação de permissão / IDOR):
+          - Persona: "Como o sistema, eu quero validar permissões...".
+          - "Critérios de Aceitação:" (5 linhas) para usuário comum recebendo HTTP 403 Forbidden para recursos alheios e acessando apenas dados próprios.
+          - Subseção OBRIGATÓRIA "Critérios Adicionais para Admins:" (4 linhas) com acesso completo HTTP 200 e logging de auditoria.
+          - Seção final OBRIGATÓRIA "Contexto de Segurança:" (4 linhas) com Severidade ALTA, OWASP A01:2021, dados sensíveis expostos e implementação de middleware de autorização.
+       4. Lógica de Negócio, Concorrência e Cálculos Financeiros:
+          - Para cálculos/descontos: User Story de propostas precisas + Critérios com fórmula (soma × (1 - desconto%)) + Subseção OBRIGATÓRIA "Exemplo de Cálculo:" (5 linhas: Produto A, Produto B, Subtotal, Desconto, Total) + "Contexto Técnico:" apontando erro vs esperado.
+          - Para concorrência/estoque esgotado: Persona de sistema + Critérios validando estoque em tempo real com bloqueio e sugestão amigável + Subseção OBRIGATÓRIA "Critérios de Prevenção:" (aviso de "estoque limitado" e reserva temporária de 15 minutos no checkout) + "Contexto do Bug:".
+       5. Interface Mobile, Acessibilidade e Estabilidade:
+          - Para sobreposição de modal em mobile (< 768px, z-index): User Story responsiva + Critérios (modal sobre todos os elementos, backdrop desfocado, largura >= 90%) + Subseção OBRIGATÓRIA "Critérios de Acessibilidade:" (foco no modal, fechar com ESC, fechar no backdrop) + "Contexto Técnico:" (ajustar z-index).
+          - Para travamento/ANR mobile com listas longas (> 50 itens): User Story de navegação fluida + Critérios (carregar < 2s sem congelamento ou ANR) + Subseção OBRIGATÓRIA "Critérios Técnicos:" (paginação de 20 itens, background thread, RecyclerView com ViewHolder pattern, scroll infinito) + "Contexto do Bug:".
 
     C) Para BUGS COMPLEXOS (múltiplos problemas numerados 1..4 + seção IMPACTO / IMPACTO BUSINESS):
        Entregue obrigatoriamente todas as seções abaixo usando os delimitadores exatos:
