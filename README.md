@@ -65,16 +65,89 @@ bug_to_user_story_v1:
 
 ## 🧠 Fase 2: Técnicas de Prompt Engineering Aplicadas
 
-Foram aplicadas **4 técnicas de engenharia de prompts** no arquivo [`prompts/bug_to_user_story_v2.yml`](file:///prompts/bug_to_user_story_v2.yml), com separação estrita entre System e User Prompt:
+O enunciado estabelece que o prompt otimizado deve conter exemplos de entrada/saída (*Few-shot Learning* como requisito obrigatório) e exige a escolha de **pelo menos duas técnicas adicionais** dentre as abordadas no curso.
 
-| Técnica | Papel Estratégico no Desafio | Onde está no `prompts/bug_to_user_story_v2.yml` |
-|---|---|---|
-| **Role Prompting** | Define a persona de Product Manager e Engenheiro de Requisitos Ágeis, orientando a saída para foco em valor de negócio e visão do usuário. | Linhas 6–8 (`system_prompt`) |
-| **Chain of Thought (CoT)** | Raciocínio interno em 4 etapas antes da resposta final: (1) classificar complexidade, (2) qualificar persona específica, (3) extrair fatos do relato sem alucinações e (4) selecionar o modelo de resposta. | Seção 1 (Linhas 9–37) |
-| **Skeleton of Thought** | Estrutura adaptativa em 3 níveis:<br>• **Simples (5 bugs):** 2 blocos concisos (User Story + 5 linhas Given-When-Then);<br>• **Médio (7 bugs):** User Story + 5-6 linhas BDD + Subseção técnica do domínio + Contexto final;<br>• **Complexo (3 bugs):** Síntese + 6 seções delimitadas (`=== USER STORY ===`, `=== CRITÉRIOS DE ACEITAÇÃO ===`, `=== CRITÉRIOS TÉCNICOS ===`, `=== CONTEXTO DO BUG ===`, `=== TASKS TÉCNICAS SUGERIDAS ===` em 4 Fases e `=== MÉTRICAS DE SUCESSO ===`). | Seção 2 (Linhas 38–264) |
-| **Few-shot Learning** *(Obrigatório)* | **3 exemplos completos e distintos dos 15 bugs do dataset**, estabelecendo o padrão estrutural para casos Simples (busca), Médios (timeout SQL/504) e Complexos (IDOR, concorrência e SMS). | Seção 4 (Linhas 276–417) |
-| **Separação System vs User** | `system_prompt` concentra todas as diretrizes e exemplos; `user_prompt` contém estritamente `"{bug_report}"`, garantindo aderência ao padrão do `ChatPromptTemplate`. | Linhas 6 e 418 |
-| **Tratamento de Edge Cases** | Regras explícitas para generalizar IDs/números em bugs de 1 linha, preservar códigos de status HTTP e manter marcadores genéricos (ex: `[nome do gateway]`) sem inventar dependências externas. | Seção 3 (Linhas 265–275) |
+Abaixo documento a matriz de aplicação, as **técnicas que escolhi deliberadamente**, a implementação do **requisito obrigatório** e os **trade-offs das técnicas descartadas**:
+
+### Matriz Resumo de Aplicação no `bug_to_user_story_v2.yml`
+
+| Técnica / Prática | Natureza da Decisão | Papel Estratégico no Desafio | Localização no YAML |
+|---|:---:|---|---|
+| **Role Prompting** | Escolha do Aluno | Define a persona de Product Manager Sênior e Especialista em Requisitos, orientando foco em negócio e empatia com o usuário. | Linhas 6–8 (`system_prompt`) |
+| **Chain of Thought (CoT)** | Escolha do Aluno | Raciocínio interno em 4 etapas antes da redação: classificar complexidade, qualificar persona, extrair fatos e selecionar molde. | Seção 1 (Linhas 9–37) |
+| **Skeleton of Thought** | Escolha do Aluno | Estrutura adaptativa em 3 níveis: Simples (2 blocos concisos), Médio (BDD + técnico) e Complexo (6 seções delimitadas). | Seção 2 (Linhas 38–264) |
+| **Few-shot Learning** | Requisito Obrigatório | 3 exemplos completos e distintos dos 15 bugs do dataset, estabelecendo o padrão estrutural para os 3 níveis de complexidade. | Seção 4 (Linhas 276–417) |
+| **Separação System vs User** | Requisito Formal | `system_prompt` com 100% das regras e exemplos; `user_prompt` contém estritamente `"{bug_report}"` (validado em teste). | Linhas 6 e 418 |
+| **Tratamento de Edge Cases** | Requisito de Robustez | Generalização de IDs ilustrativos, preservação de SLAs/códigos HTTP e proibição de inventar dependências externas. | Seção 3 (Linhas 265–275) |
+
+---
+
+### 1. Técnicas que Escolhi (Decisão de Engenharia)
+
+#### A. Role Prompting
+- **Por que escolhi:** O prompt inicial (`v1`) utilizava a instrução passiva *"Você é um assistente que ajuda"*, produzindo respostas impessoais, burocráticas e sem orientação a valor de negócio (`Helpfulness` inicial de apenas `0.45`).
+- **Aplicação:** Estabeleci a persona de *"Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis"*. Isso ancora o vocabulário em padrões ágeis, reforça a empatia com o usuário impactado pelo defeito e foca no valor entregue pela correção.
+- **Exemplo no prompt:**
+  ```yaml
+  system_prompt: |
+    Você é um Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis.
+    Sua missão é transformar relatos de bugs em User Stories claras, completas, empáticas,
+    orientadas a valor de negócio e tecnicamente precisas em formato Markdown/texto estruturado.
+  ```
+
+#### B. Chain of Thought (CoT)
+- **Por que escolhi:** Converter um defeito técnico em User Story não é uma tradução literal; exige raciocínio prévio em etapas (avaliar impacto, isolar a persona real e filtrar sintomas transitórios). Sem raciocínio guiado, o modelo cometia omissões factuais ou assumia dados transitórios de exemplo como regras fixas.
+- **Aplicação:** Criei um CoT interno em 4 passos obrigatórios executados antes da redação final:
+  1. *Classificação da complexidade* (Simples, Médio ou Complexo);
+  2. *Identificação da persona qualificada* (ex: "Como um cliente navegando na loja", nunca "Como um usuário" genérico);
+  3. *Extração factual estrita* (preservar códigos HTTP, SLAs e tabelas; generalizar números momentâneos de exemplo; zero alucinações de bibliotecas externas);
+  4. *Seleção do molde estrutural*.
+- **Exemplo no prompt:**
+  ```yaml
+    1. RACIOCÍNIO PASSO A PASSO (CHAIN OF THOUGHT INTERNO)
+    Antes de redigir a resposta final, execute mentalmente os seguintes passos:
+    Passo 1 - Classifique a complexidade do relato de bug...
+    Passo 2 - Identifique a persona exata afetada...
+    Passo 3 - Extraia todos os fatos, métricas e detalhes técnicos...
+    Passo 4 - Aplique o esqueleto estrutural correspondente...
+  ```
+
+#### C. Skeleton of Thought
+- **Por que escolhi:** O dataset do desafio varia desde bugs de interface de 1 frase até falhas arquiteturais críticas de múltiplos sistemas. Um formato rígido único gerava respostas prolixas em bugs simples ou superficiais em bugs complexos.
+- **Aplicação:** Desenvolvi uma estrutura adaptativa em 3 níveis:
+  - *Simples (5 bugs):* Exclusivamente 2 blocos (User Story + 5 linhas Given-When-Then), sem seções técnicas para garantir concisão;
+  - *Médio (7 bugs):* User Story + Given-When-Then + Subseção técnica específica do domínio (Segurança, Performance, Integração, etc.) + Contexto do bug;
+  - *Complexo (3 bugs):* Síntese executiva + 6 seções delimitadas (`USER STORY`, `CRITÉRIOS DE ACEITAÇÃO`, `CRITÉRIOS TÉCNICOS`, `CONTEXTO DO BUG`, `TASKS TÉCNICAS SUGERIDAS` em 4 fases e `MÉTRICAS DE SUCESSO`).
+- **Exemplo no prompt:**
+  ```yaml
+    ESTRUTURA ADAPTATIVA POR COMPLEXIDADE:
+    A) Para BUGS SIMPLES: Entregue EXCLUSIVAMENTE estes 2 blocos...
+    B) Para BUGS MÉDIOS: User Story + BDD + Critérios Específicos + Contexto do Bug...
+    C) Para BUGS COMPLEXOS: Síntese + 6 seções delimitadas...
+  ```
+
+---
+
+### 2. Técnica Obrigatória do Enunciado
+
+#### Few-shot Learning (Requisito Formal)
+- **Como atendi:** Em conformidade com a exigência formal de exemplos de entrada/saída, construí **3 pares completos e 100% inéditos** de `Entrada:` e `Saída Esperada:`, cobrindo um caso Simples (busca), Médio (timeout SQL e webhook 504) e Complexo (IDOR, concorrência e falha de SMS).
+- **Cuidado anti-overfitting:** Nenhum dos 3 exemplos utiliza textos dos 15 bugs do dataset de teste, garantindo generalização real do modelo e evitando contaminação da avaliação.
+- **Exemplo no prompt:**
+  ```yaml
+    4. EXEMPLOS COMPLETOS (FEW-SHOT LEARNING)
+    --- EXEMPLO 1 (SIMPLES) ---
+    Entrada: "Busca de produtos não retorna resultados quando usuário digita termo com acento..."
+    Saída Esperada:
+    Como um cliente navegando na loja, eu quero buscar produtos utilizando palavras com acentuação...
+  ```
+
+---
+
+### 3. Técnicas Avaliadas e Descartadas (Trade-offs)
+
+- **ReAct (Reasoning + Acting):** Descartado porque a tarefa é de transformação textual e refinamento de requisitos *offline*. Não há ferramentas externas, APIs ou interpretadores de código que o modelo precise consultar dinamicamente em runtime.
+- **Tree of Thought (ToT):** Descartado porque a exploração de múltiplas ramificações em árvore geraria alta latência e elevado custo de tokens desnecessariamente, visto que o CoT interno em 4 passos combinado ao Skeleton of Thought já produz saídas determinísticas de alto score (`0.9551`).
 
 ---
 
