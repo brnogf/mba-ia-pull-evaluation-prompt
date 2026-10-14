@@ -29,7 +29,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 1. [Fase 1: Diagnóstico do Prompt Inicial (`v1`)](#-fase-1-diagnóstico-do-prompt-inicial-v1)
 2. [Fase 2: Técnicas de Prompt Engineering Aplicadas](#-fase-2-técnicas-de-prompt-engineering-aplicadas)
 3. [Fase 3: Publicação no LangSmith Prompt Hub](#-fase-3-publicação-no-langsmith-prompt-hub)
-4. [Fase 4: Jornada de Otimização & Métricas no LangSmith](#-fase-4-jornada-de-otimização--métricas-no-langsmith)
+4. [Fase 4: Resultados Finais e Jornada de Otimização no LangSmith](#-fase-4-resultados-finais-e-jornada-de-otimização-no-langsmith)
    - [Tabela Comparativa das 5 Métricas por Iteração](#tabela-comparativa-das-5-métricas-por-iteração)
    - [Evolução Individual nos 15 Exemplos do Dataset](#evolução-individual-nos-15-exemplos-do-dataset)
    - [Comparativo Direto `v1` vs `v2`](#comparativo-direto-v1-vs-v2)
@@ -168,7 +168,11 @@ python src/push_prompts.py
 
 ---
 
-## 📈 Fase 4: Jornada de Otimização & Métricas no LangSmith
+## 📈 Fase 4: Resultados Finais e Jornada de Otimização no LangSmith
+
+> [!NOTE]
+> **Evidências no LangSmith (Links Públicos Auditáveis):**
+> Conforme estabelecido no item 3 da especificação do desafio (*"Link público ou screenshots do dashboard do LangSmith"*), optou-se por fornecer links públicos diretos para cada experimento, prompt e dataset. Isso viabiliza a auditoria interativa completa por parte da banca avaliadora, com acesso aos gráficos de telemetria, traces em tempo real, tokens consumidos e feedbacks individuais de cada exemplo.
 
 Seguindo o ciclo iterativo exigido no enunciado (**3 a 5 iterações** guiadas por métricas e tracing do LangSmith), o prompt evoluiu continuamente:
 
