@@ -6,7 +6,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 
 - **Prompt Público Otimizado no LangSmith Prompt Hub (`publichandle/bug_to_user_story_v2`):**
   - **Versão Final — Iteração 3 (`013cb2e4`):** [`https://smith.langchain.com/prompts/bug_to_user_story_v2/013cb2e4?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0`](https://smith.langchain.com/prompts/bug_to_user_story_v2/013cb2e4?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0)
-  - **Histórico de Revisões no Hub:** Iteração 1 (`c0e688f9`) → Iteração 2 (`2f860ed1`) → Iteração 3 (`013cb2e4`)
+  - **Histórico de Revisões no Hub:** Iteração 1 (`c0e688f9`) → Iteração 2 (`2f860ed1`) → Iteração 3 (`013cb2e4`) → Revisão de Arquétipos & Eficiência de Tokens (`32d38348`)
 - **Dataset Público de Avaliação com os 15 Exemplos e Experimentos Comparativos (`mba-ia-pull-evaluation-prompt-eval`):**
   - 👉 **[`https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d)**
 
@@ -156,6 +156,9 @@ Seguindo a metodologia exigida no desafio (**3 a 5 iterações** de *Análise de
 3. **Iteração 3 (`publichandle-bug_to_user_story_v2-25a11dc9` | Hub Commit `013cb2e4` | Modelo `gemini-3.1-flash-lite`):**
    - **Hipótese e Refinamento Definitivo:** Substituição das instruções condicionais em `B) Para BUGS MÉDIOS` por **7 moldes obrigatórios por domínio** (tornando obrigatórias as subseções `Critérios Adicionais para Admins:`, `Exemplo de Cálculo:`, `Critérios Técnicos:`, `Critérios de Prevenção:` e `Critérios de Acessibilidade:`), alinhamento do Exemplo Few-shot #2 para `< 30 segundos`, exigência de português estrito (`- Então`, nunca `- Entonces`) e eliminação de advérbios prolixos em bugs simples.
    - **Resultado Final:** **Salto expressivo em todas as 5 métricas**, atingindo **Média Geral 0.9614** (`Helpfulness: 0.95`, `Correctness: 0.97`, `F1-Score: 0.98`, `Clarity: 0.96`, `Precision: 0.95`), com **100% de nota máxima (`1.00`) nos 7 bugs médios do dataset!**
+
+4. **Revisão de Arquétipos & Eficiência de Tokens (Hub Commit `32d38348`):**
+   - **Hipótese e Generalização:** Inspirada pelas melhores práticas de engenharia de IA da Full Cycle, eliminou-se o acoplamento aos casos pontuais de teste, substituindo as regras individuais por **5 Arquétipos Universais de Software** (Integrações/APIs, Performance/SQL, Segurança/Controle de Acesso, Lógica/Concorrência e Interface/Acessibilidade). O prompt foi sintetizado com redução de linhas, resultando em menor consumo de tokens de entrada por inferência, menor latência e maior robustez para novos bugs de produção.
 
 ### Tabela Comparativa das 5 Métricas por Iteração
 
