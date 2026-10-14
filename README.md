@@ -85,8 +85,9 @@ Abaixo documento a matriz de aplicação, as **técnicas que escolhi deliberadam
 ### 1. Técnicas que Escolhi (Decisão de Engenharia)
 
 #### A. Role Prompting
-- **Por que escolhi:** O prompt inicial (`v1`) utilizava a instrução passiva *"Você é um assistente que ajuda"*, produzindo respostas impessoais, burocráticas e sem orientação a valor de negócio (`Helpfulness` inicial de apenas `0.45`).
-- **Aplicação:** Estabeleci a persona de *"Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis"*. Isso ancora o vocabulário em padrões ágeis, reforça a empatia com o usuário impactado pelo defeito e foca no valor entregue pela correção.
+- **Por que escolhi:** O prompt inicial (`v1`) utilizava a instrução genérica *"Você é um assistente que ajuda"*, sem papel profissional nem orientação a valor de negócio. A tarefa (bug → User Story com critérios de aceitação) é o trabalho de um Product Manager / Engenheiro de Requisitos, então a persona descreve o papel que a saída deve imitar.
+- **Aplicação:** Estabeleci a persona de *"Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis"*. O papel de PM orienta o foco em valor de negócio e no usuário afetado; o de Requisitos orienta critérios testáveis em Given-When-Then.
+- **Ressalva metodológica:** A persona foi a mesma em todas as iterações e **não foi testada isoladamente** (sem A/B contra outras personas). O juiz do `src/metrics.py` avalia a saída gerada (formato, precisão, clareza), não o rótulo da persona, e a melhora de `v1` para `v2` vem de várias mudanças combinadas (CoT, Skeleton, Few-shot, separação System/User). Portanto, a persona é uma escolha coerente com a tarefa, e não uma comprovadamente ótima.
 - **Exemplo no prompt:**
   ```yaml
   system_prompt: |
@@ -273,15 +274,18 @@ Métricas Base:       F1-Score: 0.99 ✓    | Clarity: 0.95 ✓     | Precision:
 
 ### Comparativo Direto `v1` vs `v2`
 
-| Dimensão | Prompt Original (`v1`) | Prompt Otimizado (`v2`) | Impacto nas Notas |
+| Dimensão | Prompt Original (`v1`) | Prompt Otimizado (`v2`) | Objetivo da Mudança |
 |---|---|---|---|
-| **Separação System/User** | Duplicava `{bug_report}` no System e User. | `system_prompt` contém regras/exemplos; `user_prompt` contém apenas `{bug_report}`. | Elimina poluição de contexto e reduz consumo de tokens. |
-| **Persona (Role)** | *"Você é um assistente..."* (genérico). | *"Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis..."*. | Eleva empatia e valor de negócio (`Helpfulness` de `0.45` para `0.94`). |
-| **Raciocínio (CoT)** | Sem raciocínio prévio. | **CoT interno em 4 passos** antes da redação final. | Garante extração factual completa (`Correctness` de `0.52` para `0.96`). |
-| **Esqueleto (Skeleton)** | Texto livre despadronizado. | **Skeleton adaptativo em 3 níveis** (Simples, Médio e Complexo). | Maximiza formatação e BDD (`Clarity` de `0.50` para `0.95`). |
-| **Exemplos (Few-shot)** | Zero-shot (0 exemplos). | **3 exemplos inéditos completos** (Simples, Médio, Complexo). | Estabiliza o formato Given-When-Then e a densidade técnica. |
-| **Controle de Alucinação** | Sem restrições contra suposições. | Proibição de ferramentas não citadas e limites estritos para tasks técnicas. | Eleva fidelidade (`Precision` de `0.46` para `0.94`). |
-| **Governança e Metadados** | 3 tags genéricas. | 7 tags semânticas + lista explícita de técnicas aplicadas. | 100% de aprovação na suite de testes `pytest`. |
+| **Separação System/User** | Duplicava `{bug_report}` no System e User. | `system_prompt` contém regras/exemplos; `user_prompt` contém apenas `{bug_report}`. | Eliminar a duplicação da variável e separar instruções de dados de entrada. |
+| **Persona (Role)** | *"Você é um assistente..."* (genérico). | *"Product Manager Sênior e Especialista em Engenharia de Requisitos Ágeis..."*. | Alinhar o papel do modelo à tarefa (valor de negócio e critérios testáveis). |
+| **Raciocínio (CoT)** | Sem raciocínio prévio. | **CoT interno em 4 passos** antes da redação final. | Classificar a complexidade e extrair os fatos do relato antes de escrever. |
+| **Esqueleto (Skeleton)** | Texto livre despadronizado. | **Skeleton adaptativo em 3 níveis** (Simples, Médio e Complexo). | Padronizar o formato e o nível de detalhe conforme a complexidade do bug. |
+| **Exemplos (Few-shot)** | Zero-shot (0 exemplos). | **3 exemplos inéditos completos** (Simples, Médio, Complexo). | Fixar o formato Given-When-Then e a densidade técnica esperada. |
+| **Controle de Alucinação** | Sem restrições contra suposições. | Proibição de ferramentas não citadas e limites estritos para tasks técnicas. | Evitar tarefas e dependências que não constam no relato. No Bug #15, `Precision` subiu de `0.97` para `1.00` cravado após restringir a seção de tasks. |
+| **Governança e Metadados** | 3 tags genéricas. | 7 tags semânticas + lista explícita de técnicas aplicadas. | Atender à validação estrutural da suíte `pytest`. |
+
+> [!NOTE]
+> **Sobre a atribuição das notas:** as 5 métricas subiram de `0.4820` (`v1`) para `0.9551` (`v2`) com todas essas mudanças aplicadas em conjunto. Não foram feitos experimentos isolando cada técnica, portanto este README não atribui a variação de uma métrica a uma técnica específica. A única relação causal com evidência direta de antes/depois no trace é a do Bug #15 descrita na linha de Controle de Alucinação.
 
 ---
 
@@ -303,8 +307,8 @@ Conforme exigido pelo desafio (*"use o tracing do LangSmith como ferramenta de d
 
 #### 3. Caso Complexo — Bug #15: App Offline-first com Falhas Críticas
 - **Input (`bug_report`):** Incidente crítico com 4 problemas (conflitos last-write-wins, uploads 50MB sem resumable, falta de ordenação e OOM durante sync) com NPS caindo de 8.5 para 4.2.
-- **Diagnóstico no Trace (Revisão Anterior):** A `Precision` caiu para `0.33` porque o modelo gerou dezenas de tarefas especulativas não citadas (microsserviços, kubernetes, GraphQL).
-- **Ação no Prompt:** Delimitação estrita da seção `=== TASKS TÉCNICAS SUGERIDAS ===`, restringindo as tarefas às 4 fases da arquitetura descrita no relato (Hotfix em lotes, Core fixes, Robustez local e Scale).
+- **Diagnóstico no Trace (Revisão Anterior):** O modelo gerava tarefas técnicas especulativas não citadas no relato (microsserviços, kubernetes, GraphQL), mantendo a `Precision` em `0.97`.
+- **Ação no Prompt:** Delimitação estrita da seção `=== TASKS TÉCNICAS SUGERIDAS ===`, restringindo as tarefas às 4 fases da arquitetura descrita no relato (Hotfix em lotes, Core fixes, Robustez local e Scale), com proibição explícita de adicionar dependências externas não mencionadas.
 - **Resultado no Trace Final:** `Precision` saltou para **`1.00`** cravado (`F1: 0.97` | `Clarity: 0.95`) — [Ver Run no LangSmith](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
 
 ---
