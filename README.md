@@ -13,7 +13,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 | **Prompt Público no Hub** | 👉 [`publichandle/bug_to_user_story_v2` (Commit `7dfdafac`)](https://smith.langchain.com/prompts/bug_to_user_story_v2/7dfdafac?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0) |
 | **Dataset Público de Avaliação** | 👉 [`mba-ia-pull-evaluation-prompt-eval` (15 exemplos)](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d) |
 | **Execução Final no LangSmith** | 👉 [`Experimento publichandle-bug_to_user_story_v2-317a39f0`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) |
-| **Testes Automatizados (`pytest`)** | ✅ **6 de 6 testes aprovados** (`100% PASSED`) |
+| **Testes Automatizados (`pytest`)** | ✅ **8 de 8 testes aprovados** (`100% PASSED` — 6 obrigatórios + 2 avançados) |
 | **Scripts Oficiais de Avaliação** | ✅ `src/evaluate.py`, `src/metrics.py` e `datasets/` **100% originais** |
 
 ### 🎯 Resumo das 5 Métricas de Avaliação
@@ -245,20 +245,22 @@ Conforme exigido pelo desafio (*"use o tracing do LangSmith como ferramenta de d
   - $\text{Correctness} = \text{round}\left(\frac{\text{F1-Score} + \text{Precision}}{2}, 4\right)$
 
 ### Validação com `pytest` (`tests/test_prompts.py`)
-Os 6 testes automatizados garantem a integridade semântica e estrutural do prompt:
+A suíte conta com 8 testes automatizados (6 obrigatórios da rubrica base do MBA + 2 avançados de arquitetura) garantindo a integridade semântica, estrutural e operacional do prompt com carregamento otimizado em memória via fixture:
 
-| Teste | Critério Validado | Status |
-|---|---|:---:|
-| `test_prompt_has_system_prompt` | Campo `system_prompt` preenchido e válido estruturalmente | ✅ `PASSED` |
-| `test_prompt_has_role_definition` | Persona de Product Manager / Requisitos presente | ✅ `PASSED` |
-| `test_prompt_mentions_format` | Exigência explícita de Markdown, User Story e Critérios de Aceitação | ✅ `PASSED` |
-| `test_prompt_has_few_shot_examples` | Pares explícitos de `Entrada:` e `Saída Esperada:` (Few-shot) | ✅ `PASSED` |
-| `test_prompt_no_todos` | Ausência total de marcações `TODO` ou pendências no YAML | ✅ `PASSED` |
-| `test_minimum_techniques` | Metadados com pelo menos 2 técnicas declaradas (4 declaradas) | ✅ `PASSED` |
+| Teste | Categoria | Critério Validado | Status |
+|---|:---:|---|:---:|
+| `test_prompt_has_system_prompt` | Obrigatório | Campo `system_prompt` preenchido e válido estruturalmente | ✅ `PASSED` |
+| `test_prompt_has_role_definition` | Obrigatório | Persona de Product Manager / Requisitos presente | ✅ `PASSED` |
+| `test_prompt_mentions_format` | Obrigatório | Exigência explícita de Markdown, User Story e Critérios de Aceitação | ✅ `PASSED` |
+| `test_prompt_has_few_shot_examples` | Obrigatório | Pares explícitos de `Entrada:` e `Saída Esperada:` (Few-shot) | ✅ `PASSED` |
+| `test_prompt_no_todos` | Obrigatório | Ausência total de marcações `TODO` ou pendências no YAML | ✅ `PASSED` |
+| `test_minimum_techniques` | Obrigatório | Metadados com pelo menos 2 técnicas declaradas (4 declaradas) | ✅ `PASSED` |
+| `test_prompt_strict_system_user_separation` | Avançado | `{bug_report}` presente no user_prompt e ausente no system_prompt (elimina risco do v1) | ✅ `PASSED` |
+| `test_prompt_langchain_compilation` | Avançado | Compilação e formatação no runtime LangChain via `ChatPromptTemplate.from_messages` | ✅ `PASSED` |
 
 ```text
 $ pytest tests/test_prompts.py -v
-============================== 6 passed in 0.18s ==============================
+============================== 8 passed in 0.46s ==============================
 ```
 
 ---
@@ -316,7 +318,7 @@ python -X utf8 src/evaluate.py
 | **4. Push Público ao Hub** | Publicado no LangSmith Hub: [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/prompts/bug_to_user_story_v2/7dfdafac?organizationId=d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0) | ✅ Concluído |
 | **5. Ciclo de 3 a 5 Iterações** | 5 iterações documentadas no LangSmith evoluindo de 0.9008 para 0.9551 | ✅ Concluído |
 | **6. Meta de Notas $\ge 0.80$** | **Média Geral: 0.9551** (Helpfulness: 0.94, Correctness: 0.96, F1: 0.99, Clarity: 0.95, Precision: 0.94) | ✅ Concluído |
-| **7. 6 Testes Automatizados** | `tests/test_prompts.py` validando integridade estrutural (100% de sucesso) | ✅ Concluído |
+| **7. Testes Automatizados** | `tests/test_prompts.py` validando integridade estrutural (8 de 8 testes aprovados: 6 obrigatórios + 2 avançados, 100% de sucesso) | ✅ Concluído |
 | **8. Preservação de Arquivos** | `src/evaluate.py`, `src/metrics.py` e `datasets/` 100% originais | ✅ Concluído |
 | **9. Link Público do Dataset** | Dataset compartilhado: [`mba-ia-pull-evaluation-prompt-eval`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d) | ✅ Concluído |
 | **10. Tracing de Debug** | 3 exemplos emblemáticos auditados detalhadamente via Tracing | ✅ Concluído |
