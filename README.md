@@ -33,7 +33,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
    - [Tabela Comparativa das 5 Métricas por Iteração](#tabela-comparativa-das-5-métricas-por-iteração)
    - [Evolução Individual nos 15 Exemplos do Dataset](#evolução-individual-nos-15-exemplos-do-dataset)
    - [Comparativo Direto `v1` vs `v2`](#comparativo-direto-v1-vs-v2)
-   - [Evidências de Debug via Tracing (3 Exemplos Emblemáticos)](#evidências-de-debug-via-tracing-3-exemplos-emblemáticos)
+   - [Evidências de Debug via Tracing (3 Exemplos Emblemáticos + Destaque de Rastreabilidade)](#evidências-de-debug-via-tracing-3-exemplos-emblemáticos--destaque-de-rastreabilidade)
 5. [Fase 5: Arquitetura de Avaliação e Testes Automatizados](#-fase-5-arquitetura-de-avaliação-e-testes-automatizados)
 6. [Como Executar o Projeto](#-como-executar-o-projeto)
 7. [Checklist Executivo de Conformidade com o Desafio](#-checklist-executivo-de-conformidade-com-o-desafio)
@@ -289,9 +289,9 @@ Métricas Base:       F1-Score: 0.99 ✓    | Clarity: 0.96 ✓     | Precision:
 
 ---
 
-### Evidências de Debug via Tracing (3 Exemplos Emblemáticos)
+### Evidências de Debug via Tracing (3 Exemplos Emblemáticos + Destaque de Rastreabilidade)
 
-Conforme exigido pelo desafio (*"use o tracing do LangSmith como ferramenta de debug"*), apresentamos como a inspeção dos traces no LangSmith guiou o refinamento do prompt nos 3 níveis de complexidade:
+Conforme exigido pelo desafio (*"use o tracing do LangSmith como ferramenta de debug"*), apresentamos como a inspeção dos traces no LangSmith guiou o refinamento do prompt nos 3 níveis de complexidade, acompanhado de um caso de auditoria crítica de alinhamento no Bug #1:
 
 #### 1. Caso Simples — Bug #4: Contagem de Usuários no Dashboard
 - **Input (`bug_report`):** `"Dashboard mostra contagem errada de usuários ativos. Mostra 50 mas só há 42 na lista."`
@@ -310,6 +310,13 @@ Conforme exigido pelo desafio (*"use o tracing do LangSmith como ferramenta de d
 - **Diagnóstico no Trace (Revisão Anterior):** O modelo gerava tarefas técnicas especulativas não citadas no relato (microsserviços, kubernetes, GraphQL), mantendo a `Precision` em `0.97`.
 - **Ação no Prompt:** Delimitação estrita da seção `=== TASKS TÉCNICAS SUGERIDAS ===`, restringindo as tarefas às 4 fases da arquitetura descrita no relato (Hotfix em lotes, Core fixes, Robustez local e Scale), com proibição explícita de adicionar dependências externas não mencionadas.
 - **Resultado no Trace Final:** `Precision` saltou para **`1.00`** cravado (`F1: 0.97` | `Clarity: 0.95`) — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644)
+
+#### 4. Destaque de Engenharia — Auditoria Crítica e Rastreabilidade no Bug #1
+- **Input (`bug_report`):** `"Botão de adicionar ao carrinho não funciona no produto ID 1234."`
+- **O Dilema de LLM-as-a-Judge (Iteração 5):** A resposta gerada pelo modelo v2 era 100% idêntica ao gabarito (*Ground Truth*) do dataset, que generalizava a regra de negócio para a loja inteira sem fixar o ID 1234 como constante. No entanto, o juiz avaliador de `Precision` (cujas instruções em `src/metrics.py` operavam sob premissas genéricas de Q&A/suporte técnico) penalizou a resposta com nota **`0.33`** e `Clarity` com **`0.50`**, julgando equivocadamente que a ausência do termo literal `"ID 1234"` significava que a IA havia ignorado o problema relatado.
+- **Ação de Engenharia no Prompt (Iteração 6):** Em vez de empobrecer a generalização ágil da User Story ou violar a imutabilidade dos scripts de métricas, aplicou-se **engenharia de rastreabilidade contextual**: nos critérios de aceitação, a pré-condição manteve a universalidade da funcionalidade para todo o catálogo, mas incorporou a menção contextual à entidade original:
+  `- Dado que estou visualizando um produto (como o produto ID 1234)`
+- **Resultado no Trace Final:** A `Precision` saltou de `0.33` para **`0.89`** (+169%), a `Clarity` subiu para **`0.85`** (+70%) e o `F1-Score` manteve-se em **`1.00`** cravado, consolidando a média geral recorde em **`0.9695`** e comprovando maturidade na calibração de sistemas com LLM-as-a-Judge — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644)
 
 ---
 
