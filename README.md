@@ -54,12 +54,27 @@ bug_to_user_story_v1:
   version: v1
 ```
 
-### Falhas Estruturais do Prompt `v1` (Causas do Score Inicial `0.4820`):
-- **Duplicação de Variável (System vs User):** A chave `{bug_report}` era injetada tanto no `system_prompt` quanto no `user_prompt`, gerando redundância e misturando instruções de sistema com dados de entrada.
-- **Persona Genérica e Passiva:** A definição como *"um assistente que ajuda"* produzia saídas sem foco em valor de negócio e sem visão do usuário afetado.
-- **Ausência de Padrão BDD e User Story:** Não exigia a estrutura padrão (`Como... quero... para que...`) nem critérios de aceitação em formato Given-When-Then (`Dado que / Quando / Então`).
-- **Zero-shot e Falta de Estrutura por Complexidade:** Não continha exemplos práticos nem diferenciava os 3 níveis de complexidade do dataset (simples, médio e complexo).
-- **Alucinações em Edge Cases:** O modelo extrapolava dependências não citadas e tratava dados transitórios de exemplo como regras fixas, reduzindo a `Precision` inicial para `0.46`.
+### Diagnóstico do Prompt `v1`: Vícios de Construção e Impacto nas Notas
+
+O score inicial de **`0.4820`** no baseline decorre da discrepância direta entre as instruções vagas do prompt e os critérios formais que o juiz (`src/metrics.py`) avaliava:
+
+1. **Ausência dos Contratos Estruturais Cobrados pelo Juiz (Impacto em `Clarity` e `Helpfulness`):**
+   - O prompt apenas pedia: *"crie uma user story a partir dele"*.
+   - Não exigia o template padrão Connextra (*"Como um [usuário], eu quero [ação], para que [benefício]"*), critério com peso formal de 20% no avaliador.
+   - Não solicitava Critérios de Aceitação nem a sintaxe BDD (*Given-When-Then / Dado-Quando-Então*), zerando a pontuação de completude de requisitos.
+
+2. **Indução a Alucinação Técnica (Impacto em `Precision` = `0.46`):**
+   - A instrução pedia explicitamente para transformar relatos *"em tarefas para desenvolvedores"*, sem estabelecer fronteiras de escopo.
+   - Isso induzia o modelo a especular e criar tarefas técnicas, bancos de dados, arquiteturas e bibliotecas que não constavam no relato original do bug, sofrendo severa penalização do juiz de fidelidade factual.
+
+3. **Inexistência de Persona Qualificada na Saída:**
+   - O prompt não orientava quem era o usuário impactado pelo defeito, gerando histórias impessoais ou com o genérico *"Como um usuário..."*, penalizado no critério de relevância e especificidade de persona.
+
+4. **Abordagem Zero-Shot sem Calibração por Complexidade (Impacto em `F1-Score`):**
+   - Não fornecia nenhum exemplo de entrada/saída (Zero-Shot) e aplicava a mesma instrução rasa de 3 linhas para bugs simples, médios e complexos, resultando em omissões de dados técnicos em cenários críticos.
+
+5. **Vício Arquitetural de Duplicação de Tokens (Engenharia de Software):**
+   - A variável `{bug_report}` era interpolada duas vezes (no `system_prompt` e no `user_prompt`), consumindo o dobro de tokens de entrada e quebrando a separação recomendada entre instruções de sistema e payload do usuário.
 
 ---
 
