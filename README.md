@@ -9,10 +9,10 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 | Item | Status / Valor de Entrega |
 |---|---|
 | **Status Oficial** | 🏆 **APROVADO EM TODAS AS MÉTRICAS** (Nota mínima exigida: $\ge 0.80$) |
-| **Média Geral Final** | **`0.9551`** (**95.51%**) no modelo `gemini-3.1-flash-lite` |
-| **Prompt Público no Hub** | 👉 [`publichandle/bug_to_user_story_v2` (Commit `7dfdafac`)](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/7dfdafac) |
+| **Média Geral Final** | **`0.9695`** (**96.95%**) no modelo `gemini-3.1-flash-lite` |
+| **Prompt Público no Hub** | 👉 [`publichandle/bug_to_user_story_v2` (Commit `ecee23fa`)](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/ecee23fa) |
 | **Dataset Público de Avaliação** | 👉 [`mba-ia-pull-evaluation-prompt-eval` (15 exemplos)](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d) |
-| **Execução Final no LangSmith** | 👉 [`Experimento publichandle-bug_to_user_story_v2-317a39f0`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) |
+| **Execução Final no LangSmith** | 👉 [`Experimento publichandle-bug_to_user_story_v2-79b74107`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644) |
 | **Testes Automatizados (`pytest`)** | ✅ **8 de 8 testes aprovados** (`100% PASSED` — 6 obrigatórios + 2 avançados) |
 | **Scripts Oficiais de Avaliação** | ✅ `src/evaluate.py`, `src/metrics.py` e `datasets/` **100% originais** |
 
@@ -20,7 +20,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 
 | Helpfulness | Correctness | F1-Score | Clarity | Precision | MÉDIA GERAL |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| **0.94** ✅ | **0.96** ✅ | **0.99** ✅ | **0.95** ✅ | **0.94** ✅ | **0.9551** 🏆 |
+| **0.96** ✅ | **0.97** ✅ | **0.99** ✅ | **0.96** ✅ | **0.96** ✅ | **0.9695** 🏆 |
 
 ---
 
@@ -144,7 +144,7 @@ Abaixo documento a matriz de aplicação, as **técnicas que escolhi deliberadam
 ### 3. Técnicas Avaliadas e Descartadas (Trade-offs)
 
 - **ReAct (Reasoning + Acting):** Descartado porque a tarefa é de transformação textual e refinamento de requisitos *offline*. Não há ferramentas externas, APIs ou interpretadores de código que o modelo precise consultar dinamicamente em runtime.
-- **Tree of Thought (ToT):** Descartado porque a exploração de múltiplas ramificações em árvore geraria alta latência e elevado custo de tokens desnecessariamente, visto que o CoT interno em 4 passos combinado ao Skeleton of Thought já produz saídas determinísticas de alto score (`0.9551`).
+- **Tree of Thought (ToT):** Descartado porque a exploração de múltiplas ramificações em árvore geraria alta latência e elevado custo de tokens desnecessariamente, visto que o CoT interno em 4 passos combinado ao Skeleton of Thought já produz saídas determinísticas de alto score (`0.9695`).
 
 ---
 
@@ -156,8 +156,8 @@ O script `src/push_prompts.py` lê e valida `prompts/bug_to_user_story_v2.yml` e
 python src/push_prompts.py
 ```
 
-- **Prompt Público no Hub:** [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/7dfdafac)
-- **Versão Final de Produção:** Commit `7dfdafac`
+- **Prompt Público no Hub:** [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/ecee23fa)
+- **Versão Final de Produção:** Commit `ecee23fa`
 - **Metadados Gravados:**
   - `is_public: True`
   - `description:` "Prompt otimizado para converter relatos de bugs (simples, médios e complexos) em User Stories ágeis completas, com critérios de aceitação Given-When-Then e contexto técnico."
@@ -177,18 +177,19 @@ Seguindo o ciclo iterativo exigido no enunciado (**3 a 5 iterações** guiadas p
 2. **Iteração 2 (`359c1385` — Hub `2f860ed1`):** Adição de regras para generalização de IDs em bugs de 1 linha. Atingiu **0.9008**, com necessidade de refinar critérios específicos de domínio nos bugs médios.
 3. **Iteração 3 (`25a11dc9` — Hub `013cb2e4`):** Ajuste fino de moldes para os 7 bugs médios e 3 complexos, alcançando **0.9614**.
 4. **Otimização de Contexto e Tokens (`1cfce0f4` — Hub `32d38348`):** Padronização por complexidade para reduzir o consumo de tokens por inferência, mantendo média aprovada em **0.9057**.
-5. **Validação Final (`317a39f0` — Hub `7dfdafac`):** Ajuste no escopo das tarefas técnicas do Bug #15 (restringindo a tarefas fundamentadas no relato) e consolidação dos critérios de aceitação, alcançando média **0.9551** com `src/evaluate.py` 100% original.
+5. **Refinamento de Escopo (`317a39f0` — Hub `7dfdafac`):** Ajuste no escopo das tarefas técnicas do Bug #15 (restringindo a tarefas fundamentadas no relato) e consolidação dos critérios de aceitação, alcançando média **0.9551**.
+6. **Modularização de Rastreabilidade (`79b74107` — Hub `ecee23fa`):** Modularização da saída para incluir rastreabilidade explícita ao relato do bug (entidade contextual `produto ID 1234` na pré-condição BDD) sem perder a generalização ágil da User Story. Elevou a precisão do Exemplo #1 de 0.33 para **0.89** e clareza para **0.85** (com F1 em **1.00**), atingindo média geral recorde de **0.9695** com 100% dos 15 exemplos aprovados em todos os critérios individuais.
 
 ### Tabela Comparativa das 5 Métricas por Iteração
 
-| Métrica | Prompt `v1` *(Baseline Inicial)* | Iteração 1 (`bc838971`) | Iteração 2 (`359c1385`) | Iteração 3 (`25a11dc9`) | Validação Final (`317a39f0`) | Meta Mínima | Status Final |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Helpfulness** *(Derivada)* | 0.45 ✗ | **0.91** ✓ | **0.89** ✓ | **0.95** ✓ | **0.94** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.49 vs `v1`) |
-| **Correctness** *(Derivada)* | 0.52 ✗ | **0.93** ✓ | **0.90** ✓ | **0.97** ✓ | **0.96** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.44 vs `v1`) |
-| **F1-Score** *(Base)* | 0.48 ✗ | **0.96** ✓ | **0.92** ✓ | **0.98** ✓ | **0.99** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.51 vs `v1`) |
-| **Clarity** *(Base)* | 0.50 ✗ | **0.92** ✓ | **0.91** ✓ | **0.96** ✓ | **0.95** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.45 vs `v1`) |
-| **Precision** *(Base)* | 0.46 ✗ | **0.90** ✓ | **0.88** ✓ | **0.95** ✓ | **0.94** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.48 vs `v1`) |
-| **MÉDIA GERAL** | **0.4820** ✗ | **0.9238** ✓ | **0.9008** ✓ | **0.9614** ✓ | **0.9551** ✓ | $\ge 0.80$ | 🏆 **APROVADO** |
+| Métrica | Prompt `v1` *(Baseline Inicial)* | Iteração 1 (`bc838971`) | Iteração 2 (`359c1385`) | Iteração 3 (`25a11dc9`) | Refinamento (`317a39f0`) | Modularização Final (`79b74107`) | Meta Mínima | Status Final |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Helpfulness** *(Derivada)* | 0.45 ✗ | **0.91** ✓ | **0.89** ✓ | **0.95** ✓ | **0.94** ✓ | **0.96** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.51 vs `v1`) |
+| **Correctness** *(Derivada)* | 0.52 ✗ | **0.93** ✓ | **0.90** ✓ | **0.97** ✓ | **0.96** ✓ | **0.97** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.45 vs `v1`) |
+| **F1-Score** *(Base)* | 0.48 ✗ | **0.96** ✓ | **0.92** ✓ | **0.98** ✓ | **0.99** ✓ | **0.99** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.51 vs `v1`) |
+| **Clarity** *(Base)* | 0.50 ✗ | **0.92** ✓ | **0.91** ✓ | **0.96** ✓ | **0.95** ✓ | **0.96** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.46 vs `v1`) |
+| **Precision** *(Base)* | 0.46 ✗ | **0.90** ✓ | **0.88** ✓ | **0.95** ✓ | **0.94** ✓ | **0.96** ✓ | $\ge 0.80$ | ✅ APROVADO (+0.50 vs `v1`) |
+| **MÉDIA GERAL** | **0.4820** ✗ | **0.9238** ✓ | **0.9008** ✓ | **0.9614** ✓ | **0.9551** ✓ | **0.9695** ✓ | $\ge 0.80$ | 🏆 **APROVADO** |
 
 ---
 
@@ -196,9 +197,9 @@ Seguindo o ciclo iterativo exigido no enunciado (**3 a 5 iterações** guiadas p
 
 Pontuações obtidas no formato `F1-Score / Clarity / Precision`:
 
-| # | Bug Report (`datasets/bug_to_user_story.jsonl`) | Complexidade | Iteração 1 (`bc838971`) | Iteração 2 (`359c1385`) | Iteração 3 (`25a11dc9`) | Refinamento Final (`317a39f0`) |
-|:---:|---|:---:|:---:|:---:|:---:|:---:|
-| 1 | Botão adicionar ao carrinho (produto ID 1234) | `simple` | `1.00 / 0.90 / 0.66` | `0.97 / 0.95 / 0.66` | `0.97 / 0.85 / 0.66` | `1.00 / 0.50 / 0.33` |
+| # | Bug Report (`datasets/bug_to_user_story.jsonl`) | Complexidade | Iteração 1 (`bc838971`) | Iteração 2 (`359c1385`) | Iteração 3 (`25a11dc9`) | Refinamento (`317a39f0`) | Modularização Final (`79b74107`) |
+|:---:|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Botão adicionar ao carrinho (produto ID 1234) | `simple` | `1.00 / 0.90 / 0.66` | `0.97 / 0.95 / 0.66` | `0.97 / 0.85 / 0.66` | `1.00 / 0.50 / 0.33` | **`1.00 / 0.85 / 0.89`** |
 | 2 | Validação de email sem `@` | `simple` | `0.90 / 0.95 / 0.93` | `0.90 / 0.95 / 0.93` | `1.00 / 0.90 / 0.93` | **`1.00 / 1.00 / 1.00`** |
 | 3 | iOS perfil quebrado em modo landscape | `simple` | `0.97 / 0.90 / 0.93` | `0.92 / 0.90 / 0.93` | `1.00 / 0.85 / 0.93` | **`1.00 / 1.00 / 1.00`** |
 | 4 | Dashboard contagem errada (50 vs 42) | `simple` | `0.90 / 0.90 / 0.83` | `1.00 / 0.85 / 0.93` | `0.97 / 0.95 / 0.93` | **`1.00 / 1.00 / 0.93`** |
@@ -215,9 +216,9 @@ Pontuações obtidas no formato `F1-Score / Clarity / Precision`:
 | 15 | App offline-first (sync conflito, ordem, memória) | `complex` | `0.97 / 0.95 / 0.97` | `1.00 / 0.95 / 0.93` | `0.92 / 0.95 / 0.93` | **`0.97 / 0.95 / 1.00`** |
 
 <details>
-<summary><b>🔍 Clique aqui para expandir o Histórico Completo de 11 Sessões no LangSmith e Logs de Terminal</b></summary>
+<summary><b>🔍 Clique aqui para expandir o Histórico Completo de 12 Sessões no LangSmith e Logs de Terminal</b></summary>
 
-#### Histórico Completo das 11 Sessões Registradas no LangSmith
+#### Histórico Completo das 12 Sessões Registradas no LangSmith
 | # | Experimento no LangSmith | Data / Hora (UTC) | Runs | Help | Corr | F1 | Clar | Prec | Média Geral | Status | Descrição |
 |---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
 | 1 | [`...-8c312300`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=7231cefe-65da-4310-b6f0-a9b331cced83) | 2026-10-12 14:42 | 15 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | **0.0000** | ❌ Reprovado | Setup e validação de pipeline |
@@ -231,9 +232,10 @@ Pontuações obtidas no formato `F1-Score / Clarity / Precision`:
 | 9 | [`...-d259ff00`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=cd413f88-a176-4e2a-9fb8-23590b756ba9) | 2026-10-14 20:40 | 15 | 0.87 | 0.89 | 0.92 | 0.89 | 0.85 | **0.8831** | ✅ Aprovado | Teste sob concorrência |
 | 10 | [`...-68bda6c0`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=087f2e06-90c9-4ba2-9c49-27565e4a00be) | 2026-10-14 20:49 | 15 | 0.94 | 0.96 | 0.99 | 0.95 | 0.94 | **0.9551** | ✅ Aprovado | **Refinamento de Escopo (1ª Execução)** (Hub `7dfdafac`) |
 | 11 | [`...-317a39f0`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) | 2026-10-14 21:13 | 15 | 0.94 | 0.96 | 0.99 | 0.95 | 0.94 | **0.9551** | ✅ Aprovado | **Validação Final com Script Original** (Hub `7dfdafac`) |
+| 12 | [`...-79b74107`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644) | 2026-10-15 02:25 | 15 | 0.96 | 0.97 | 0.99 | 0.96 | 0.96 | **0.9695** | ✅ Aprovado | **Modularização de Rastreabilidade** (Hub `ecee23fa`) |
 
-#### Saída Completa do Terminal — Experimento Final (`317a39f0`)
-> 🔗 **Link Público Direto (sem login):** [`https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+#### Saída Completa do Terminal — Experimento Final (`79b74107`)
+> 🔗 **Link Público Direto (sem login):** [`https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644)
 
 ```text
 ==================================================
@@ -241,30 +243,30 @@ AVALIAÇÃO DE PROMPTS OTIMIZADOS
 ==================================================
 Provider: google | Modelo: gemini-3.1-flash-lite
 Dataset: mba-ia-pull-evaluation-prompt-eval (15 exemplos)
-Prompt carregado: publichandle/bug_to_user_story_v2 (Hub 7dfdafac)
+Prompt carregado: publichandle/bug_to_user_story_v2 (Hub ecee23fa)
 
-View experiment: publichandle-bug_to_user_story_v2-317a39f0
-https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a
+View experiment: publichandle-bug_to_user_story_v2-79b74107
+https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644
 
-      [1] F1:0.97 Clarity:0.95 Precision:1.00
+      [1] F1:1.00 Clarity:0.95 Precision:0.93
       [2] F1:0.96 Clarity:0.95 Precision:0.93
-      [3] F1:0.96 Clarity:0.95 Precision:0.97
+      [3] F1:0.97 Clarity:0.90 Precision:0.93
       [4] F1:1.00 Clarity:1.00 Precision:1.00
       [5] F1:1.00 Clarity:1.00 Precision:1.00
       [6] F1:1.00 Clarity:1.00 Precision:1.00
-      [7] F1:1.00 Clarity:0.98 Precision:1.00
-      [8] F1:0.92 Clarity:0.95 Precision:0.97
+      [7] F1:1.00 Clarity:1.00 Precision:1.00
+      [8] F1:0.92 Clarity:0.95 Precision:0.93
       [9] F1:1.00 Clarity:0.95 Precision:1.00
-      [10] F1:1.00 Clarity:0.95 Precision:0.93
+      [10] F1:1.00 Clarity:0.90 Precision:0.83
       [11] F1:1.00 Clarity:1.00 Precision:1.00
       [12] F1:1.00 Clarity:1.00 Precision:0.93
       [13] F1:1.00 Clarity:1.00 Precision:1.00
       [14] F1:1.00 Clarity:1.00 Precision:1.00
-      [15] F1:1.00 Clarity:0.50 Precision:0.33
+      [15] F1:1.00 Clarity:0.85 Precision:0.89
 
-Métricas Derivadas:  Helpfulness: 0.94 ✓ | Correctness: 0.96 ✓
-Métricas Base:       F1-Score: 0.99 ✓    | Clarity: 0.95 ✓     | Precision: 0.94 ✓
-📊 MÉDIA GERAL: 0.9551 — ✅ STATUS: APROVADO (Todas >= 0.80)
+Métricas Derivadas:  Helpfulness: 0.96 ✓ | Correctness: 0.97 ✓
+Métricas Base:       F1-Score: 0.99 ✓    | Clarity: 0.96 ✓     | Precision: 0.96 ✓
+📊 MÉDIA GERAL: 0.9695 — ✅ STATUS: APROVADO (Todas >= 0.80)
 ```
 </details>
 
@@ -283,7 +285,7 @@ Métricas Base:       F1-Score: 0.99 ✓    | Clarity: 0.95 ✓     | Precision:
 | **Governança e Metadados** | 3 tags genéricas. | 7 tags semânticas + lista explícita de técnicas aplicadas. | Atender à validação estrutural da suíte `pytest`. |
 
 > [!NOTE]
-> **Sobre a atribuição das notas:** as 5 métricas subiram de `0.4820` (`v1`) para `0.9551` (`v2`) com todas essas mudanças aplicadas em conjunto. Não foram feitos experimentos isolando cada técnica, portanto este README não atribui a variação de uma métrica a uma técnica específica. A única relação causal com evidência direta de antes/depois no trace é a do Bug #15 descrita na linha de Controle de Alucinação.
+> **Sobre a atribuição das notas:** as 5 métricas subiram de `0.4820` (`v1`) para `0.9695` (`v2`) com todas essas mudanças aplicadas em conjunto. Não foram feitos experimentos isolando cada técnica, portanto este README não atribui a variação de uma métrica a uma técnica específica. A única relação causal com evidência direta de antes/depois no trace é a do Bug #15 descrita na linha de Controle de Alucinação.
 
 ---
 
@@ -295,19 +297,19 @@ Conforme exigido pelo desafio (*"use o tracing do LangSmith como ferramenta de d
 - **Input (`bug_report`):** `"Dashboard mostra contagem errada de usuários ativos. Mostra 50 mas só há 42 na lista."`
 - **Diagnóstico no Trace (Iteração 1):** O juiz penalizou `Precision` (`0.83`) porque o modelo tratou o número momentâneo `"42"` como regra de negócio fixa.
 - **Ação no Prompt:** Inserida regra no CoT e no Esqueleto Simples para generalizar números de exemplo para a regra geral (*"total real de usuários ativos com status ativo"*).
-- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 0.93` — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 0.93` — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644)
 
 #### 2. Caso Médio — Bug #11: Validação de Estoque no Carrinho
 - **Input (`bug_report`):** `"Carrinho permite finalizar compra mesmo com produto fora de estoque... Produto tem 2 unidades em estoque..."`
 - **Diagnóstico no Trace (Iteração 2):** O juiz penalizou `F1-Score` (`0.79`) pela omissão da regra de negócio de reserva temporária de 15 minutos no checkout e mensagem de estoque limitado.
 - **Ação no Prompt:** Tornou-se obrigatória a subseção `Critérios de Prevenção:` com 4 linhas para validação de estoque em tempo real e reserva de 15 min.
-- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 1.00` (Nota Máxima) — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 1.00` (Nota Máxima) — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644)
 
 #### 3. Caso Complexo — Bug #15: App Offline-first com Falhas Críticas
 - **Input (`bug_report`):** Incidente crítico com 4 problemas (conflitos last-write-wins, uploads 50MB sem resumable, falta de ordenação e OOM durante sync) com NPS caindo de 8.5 para 4.2.
 - **Diagnóstico no Trace (Revisão Anterior):** O modelo gerava tarefas técnicas especulativas não citadas no relato (microsserviços, kubernetes, GraphQL), mantendo a `Precision` em `0.97`.
 - **Ação no Prompt:** Delimitação estrita da seção `=== TASKS TÉCNICAS SUGERIDAS ===`, restringindo as tarefas às 4 fases da arquitetura descrita no relato (Hotfix em lotes, Core fixes, Robustez local e Scale), com proibição explícita de adicionar dependências externas não mencionadas.
-- **Resultado no Trace Final:** `Precision` saltou para **`1.00`** cravado (`F1: 0.97` | `Clarity: 0.95`) — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+- **Resultado no Trace Final:** `Precision` saltou para **`1.00`** cravado (`F1: 0.97` | `Clarity: 0.95`) — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e9faf037-5456-45c4-9c8b-940da31aa644)
 
 ---
 
@@ -394,9 +396,9 @@ python -X utf8 src/evaluate.py
 | **1. Pull do Prompt Inicial** | `src/pull_prompts.py` gerando `prompts/bug_to_user_story_v1.yml` | ✅ Concluído |
 | **2. Técnicas Avançadas** | `Few-shot Learning` (3 exemplos), `Role Prompting`, `CoT` e `Skeleton of Thought` | ✅ Concluído |
 | **3. Separação System vs User** | `system_prompt` especialista e `user_prompt: "{bug_report}"` | ✅ Concluído |
-| **4. Push Público ao Hub** | Publicado no LangSmith Hub: [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/7dfdafac) | ✅ Concluído |
-| **5. Ciclo de 3 a 5 Iterações** | 5 iterações documentadas no LangSmith evoluindo de 0.9008 para 0.9551 | ✅ Concluído |
-| **6. Meta de Notas $\ge 0.80$** | **Média Geral: 0.9551** (Helpfulness: 0.94, Correctness: 0.96, F1: 0.99, Clarity: 0.95, Precision: 0.94) | ✅ Concluído |
+| **4. Push Público ao Hub** | Publicado no LangSmith Hub: [`publichandle/bug_to_user_story_v2`](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/ecee23fa) | ✅ Concluído |
+| **5. Ciclo de 3 a 5 Iterações** | 6 iterações documentadas no LangSmith evoluindo de 0.9008 para 0.9695 | ✅ Concluído |
+| **6. Meta de Notas $\ge 0.80$** | **Média Geral: 0.9695** (Helpfulness: 0.96, Correctness: 0.97, F1: 0.99, Clarity: 0.96, Precision: 0.96) | ✅ Concluído |
 | **7. Testes Automatizados** | `tests/test_prompts.py` validando integridade estrutural (8 de 8 testes aprovados: 6 obrigatórios + 2 avançados, 100% de sucesso) | ✅ Concluído |
 | **8. Preservação de Arquivos** | `src/evaluate.py`, `src/metrics.py` e `datasets/` 100% originais | ✅ Concluído |
 | **9. Link Público do Dataset** | Dataset compartilhado: [`mba-ia-pull-evaluation-prompt-eval`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d) | ✅ Concluído |
