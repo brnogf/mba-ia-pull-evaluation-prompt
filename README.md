@@ -257,8 +257,6 @@ Pontuações obtidas no formato `F1-Score / Clarity / Precision`:
 
 ### 📋 Trilha de Auditoria Completa das 12 Sessões Registradas no LangSmith
 
-> [!NOTE]
-> **Transparência e Reprodutibilidade:** Em consonância com a premissa de que a jornada de engenharia é tão importante quanto o resultado final, a tabela a seguir expõe abertamente todas as 12 execuções realizadas durante o ciclo de desenvolvimento, permitindo auditar o histórico de hipóteses, experimentos exploratórios que falharam e iterações aprovadas diretamente nos traces do LangSmith:
 | # | Experimento no LangSmith | Data / Hora (UTC) | Runs | Help | Corr | F1 | Clar | Prec | Média Geral | Status | Descrição |
 |---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
 | 1 | [`...-8c312300`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=7231cefe-65da-4310-b6f0-a9b331cced83) | 2026-10-12 14:42 | 15 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | **0.0000** | ❌ Reprovado | Setup e validação de pipeline |
