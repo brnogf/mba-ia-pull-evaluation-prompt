@@ -268,7 +268,6 @@ Métricas Derivadas:  Helpfulness: 0.96 ✓ | Correctness: 0.97 ✓
 Métricas Base:       F1-Score: 0.99 ✓    | Clarity: 0.96 ✓     | Precision: 0.96 ✓
 📊 MÉDIA GERAL: 0.9695 — ✅ STATUS: APROVADO (Todas >= 0.80)
 ```
-</details>
 
 ---
 
