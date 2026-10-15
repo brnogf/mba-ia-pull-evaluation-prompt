@@ -42,7 +42,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 
 ## 📋 Fase 1: Diagnóstico do Prompt Inicial (`v1`)
 
-O script `src/pull_prompts.py` conectou-se ao Hub via `client.pull_prompt("leonanluppi/bug_to_user_story_v1")` e salvou localmente o arquivo [`prompts/bug_to_user_story_v1.yml`](file:///prompts/bug_to_user_story_v1.yml):
+O script `src/pull_prompts.py` conectou-se ao Hub via `client.pull_prompt("leonanluppi/bug_to_user_story_v1")` e salvou localmente o arquivo [`prompts/bug_to_user_story_v1.yml`](prompts/bug_to_user_story_v1.yml):
 
 ```yaml
 bug_to_user_story_v1:
@@ -54,27 +54,8 @@ bug_to_user_story_v1:
   version: v1
 ```
 
-### Diagnóstico do Prompt `v1`: Vícios de Construção e Impacto nas Notas
-
-O score inicial de **`0.4820`** no baseline decorre da discrepância direta entre as instruções vagas do prompt e os critérios formais que o juiz (`src/metrics.py`) avaliava:
-
-1. **Ausência dos Contratos Estruturais Cobrados pelo Juiz (Impacto em `Clarity` e `Helpfulness`):**
-   - O prompt apenas pedia: *"crie uma user story a partir dele"*.
-   - Não exigia o template padrão Connextra (*"Como um [usuário], eu quero [ação], para que [benefício]"*), critério com peso formal de 20% no avaliador.
-   - Não solicitava Critérios de Aceitação nem a sintaxe BDD (*Given-When-Then / Dado-Quando-Então*), zerando a pontuação de completude de requisitos.
-
-2. **Indução a Alucinação Técnica (Impacto em `Precision` = `0.46`):**
-   - A instrução pedia explicitamente para transformar relatos *"em tarefas para desenvolvedores"*, sem estabelecer fronteiras de escopo.
-   - Isso induzia o modelo a especular e criar tarefas técnicas, bancos de dados, arquiteturas e bibliotecas que não constavam no relato original do bug, sofrendo severa penalização do juiz de fidelidade factual.
-
-3. **Inexistência de Persona Qualificada na Saída:**
-   - O prompt não orientava quem era o usuário impactado pelo defeito, gerando histórias impessoais ou com o genérico *"Como um usuário..."*, penalizado no critério de relevância e especificidade de persona.
-
-4. **Abordagem Zero-Shot sem Calibração por Complexidade (Impacto em `F1-Score`):**
-   - Não fornecia nenhum exemplo de entrada/saída (Zero-Shot) e aplicava a mesma instrução rasa de 3 linhas para bugs simples, médios e complexos, resultando em omissões de dados técnicos em cenários críticos.
-
-5. **Vício Arquitetural de Duplicação de Tokens (Engenharia de Software):**
-   - A variável `{bug_report}` era interpolada duas vezes (no `system_prompt` e no `user_prompt`), consumindo o dobro de tokens de entrada e quebrando a separação recomendada entre instruções de sistema e payload do usuário.
+> [!NOTE]
+> O prompt `v1` foi fornecido no desafio como *baseline/mock didático* contendo deficiências intencionais de construção (instruções genéricas, duplicação da variável e ausência de BDD/Few-shot), registrando média inicial de `0.4820`. Todas as soluções e técnicas de engenharia foram implementadas no `v2` (Fase 2) e comparadas na tabela da Fase 4.
 
 ---
 
