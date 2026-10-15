@@ -12,7 +12,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 | **Média Geral Final** | **`0.9551`** (**95.51%**) no modelo `gemini-3.1-flash-lite` |
 | **Prompt Público no Hub** | 👉 [`publichandle/bug_to_user_story_v2` (Commit `7dfdafac`)](https://smith.langchain.com/hub/publichandle/bug_to_user_story_v2/7dfdafac) |
 | **Dataset Público de Avaliação** | 👉 [`mba-ia-pull-evaluation-prompt-eval` (15 exemplos)](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d) |
-| **Execução Final no LangSmith** | 👉 [`Experimento publichandle-bug_to_user_story_v2-317a39f0`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) |
+| **Execução Final no LangSmith** | 👉 [`Experimento publichandle-bug_to_user_story_v2-317a39f0`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) |
 | **Testes Automatizados (`pytest`)** | ✅ **8 de 8 testes aprovados** (`100% PASSED` — 6 obrigatórios + 2 avançados) |
 | **Scripts Oficiais de Avaliação** | ✅ `src/evaluate.py`, `src/metrics.py` e `datasets/` **100% originais** |
 
@@ -224,19 +224,21 @@ Pontuações obtidas no formato `F1-Score / Clarity / Precision`:
 #### Histórico Completo das 11 Sessões Registradas no LangSmith
 | # | Experimento no LangSmith | Data / Hora (UTC) | Runs | Help | Corr | F1 | Clar | Prec | Média Geral | Status | Descrição |
 |---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| 1 | [`...-8c312300`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=7231cefe-65da-4310-b6f0-a9b331cced83) | 2026-10-12 14:42 | 15 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | **0.0000** | ❌ Reprovado | Setup e validação de pipeline |
-| 2 | [`...-bc838971`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=cafb79eb-59e8-4f21-9112-5ce134952e8f) | 2026-10-12 14:45 | 15 | 0.91 | 0.93 | 0.96 | 0.92 | 0.90 | **0.9238** | ✅ Aprovado | **Iteração 1** — CoT + Skeleton inicial (Hub `c0e688f9`) |
-| 3 | [`...-37184e7c`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=e95a42a3-0865-45f4-94a9-ad3ff5fed064) | 2026-10-12 14:59 | 15 | 0.31 | 0.31 | 0.32 | 0.31 | 0.31 | **0.3128** | ❌ Reprovado | Teste com formatação intermediária |
-| 4 | [`...-359c1385`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=a402ff24-5671-47b6-9585-7291201a54b9) | 2026-10-12 15:08 | 15 | 0.89 | 0.90 | 0.92 | 0.91 | 0.88 | **0.9008** | ✅ Aprovado | **Iteração 2** — Concisão e generalização (Hub `2f860ed1`) |
-| 5 | [`...-25a11dc9`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=6776a518-e2c7-496e-870a-cf7375b6fe35) | 2026-10-12 16:01 | 15 | 0.95 | 0.97 | 0.98 | 0.96 | 0.95 | **0.9614** | ✅ Aprovado | **Iteração 3** — Calibração por domínios (Hub `013cb2e4`) |
-| 6 | [`...-9a72c8e0`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=c626f2d6-add5-47b8-a4a1-3cd5d56ee5aa) | 2026-10-14 20:01 | 15 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | **0.0000** | ❌ Reprovado | Teste de conectividade com modelo Gemini |
-| 7 | [`...-293e792f`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=321cf96f-cdd7-466a-8bc5-8ba71d236f63) | 2026-10-14 20:04 | 15 | 0.89 | 0.91 | 0.95 | 0.91 | 0.86 | **0.9057** | ✅ Aprovado | Validação com `gemini-3.1-flash-lite` |
-| 8 | [`...-1cfce0f4`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=af86de32-31d5-489b-97bf-56079e13315f) | 2026-10-14 20:19 | 15 | 0.89 | 0.91 | 0.95 | 0.91 | 0.86 | **0.9057** | ✅ Aprovado | **Otimização de Contexto e Tokens** (Hub `32d38348`) |
-| 9 | [`...-d259ff00`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=cd413f88-a176-4e2a-9fb8-23590b756ba9) | 2026-10-14 20:40 | 15 | 0.87 | 0.89 | 0.92 | 0.89 | 0.85 | **0.8831** | ✅ Aprovado | Teste sob concorrência |
-| 10 | [`...-68bda6c0`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=087f2e06-90c9-4ba2-9c49-27565e4a00be) | 2026-10-14 20:49 | 15 | 0.94 | 0.96 | 0.99 | 0.95 | 0.94 | **0.9551** | ✅ Aprovado | **Refinamento de Escopo (1ª Execução)** (Hub `7dfdafac`) |
-| 11 | [`...-317a39f0`](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) | 2026-10-14 21:13 | 15 | 0.94 | 0.96 | 0.99 | 0.95 | 0.94 | **0.9551** | ✅ Aprovado | **Validação Final com Script Original** (Hub `7dfdafac`) |
+| 1 | [`...-8c312300`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=7231cefe-65da-4310-b6f0-a9b331cced83) | 2026-10-12 14:42 | 15 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | **0.0000** | ❌ Reprovado | Setup e validação de pipeline |
+| 2 | [`...-bc838971`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=cafb79eb-59e8-4f21-9112-5ce134952e8f) | 2026-10-12 14:45 | 15 | 0.91 | 0.93 | 0.96 | 0.92 | 0.90 | **0.9238** | ✅ Aprovado | **Iteração 1** — CoT + Skeleton inicial (Hub `c0e688f9`) |
+| 3 | [`...-37184e7c`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=e95a42a3-0865-45f4-94a9-ad3ff5fed064) | 2026-10-12 14:59 | 15 | 0.31 | 0.31 | 0.32 | 0.31 | 0.31 | **0.3128** | ❌ Reprovado | Teste com formatação intermediária |
+| 4 | [`...-359c1385`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=a402ff24-5671-47b6-9585-7291201a54b9) | 2026-10-12 15:08 | 15 | 0.89 | 0.90 | 0.92 | 0.91 | 0.88 | **0.9008** | ✅ Aprovado | **Iteração 2** — Concisão e generalização (Hub `2f860ed1`) |
+| 5 | [`...-25a11dc9`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=6776a518-e2c7-496e-870a-cf7375b6fe35) | 2026-10-12 16:01 | 15 | 0.95 | 0.97 | 0.98 | 0.96 | 0.95 | **0.9614** | ✅ Aprovado | **Iteração 3** — Calibração por domínios (Hub `013cb2e4`) |
+| 6 | [`...-9a72c8e0`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=c626f2d6-add5-47b8-a4a1-3cd5d56ee5aa) | 2026-10-14 20:01 | 15 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | **0.0000** | ❌ Reprovado | Teste de conectividade com modelo Gemini |
+| 7 | [`...-293e792f`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=321cf96f-cdd7-466a-8bc5-8ba71d236f63) | 2026-10-14 20:04 | 15 | 0.89 | 0.91 | 0.95 | 0.91 | 0.86 | **0.9057** | ✅ Aprovado | Validação com `gemini-3.1-flash-lite` |
+| 8 | [`...-1cfce0f4`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=af86de32-31d5-489b-97bf-56079e13315f) | 2026-10-14 20:19 | 15 | 0.89 | 0.91 | 0.95 | 0.91 | 0.86 | **0.9057** | ✅ Aprovado | **Otimização de Contexto e Tokens** (Hub `32d38348`) |
+| 9 | [`...-d259ff00`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=cd413f88-a176-4e2a-9fb8-23590b756ba9) | 2026-10-14 20:40 | 15 | 0.87 | 0.89 | 0.92 | 0.89 | 0.85 | **0.8831** | ✅ Aprovado | Teste sob concorrência |
+| 10 | [`...-68bda6c0`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=087f2e06-90c9-4ba2-9c49-27565e4a00be) | 2026-10-14 20:49 | 15 | 0.94 | 0.96 | 0.99 | 0.95 | 0.94 | **0.9551** | ✅ Aprovado | **Refinamento de Escopo (1ª Execução)** (Hub `7dfdafac`) |
+| 11 | [`...-317a39f0`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a) | 2026-10-14 21:13 | 15 | 0.94 | 0.96 | 0.99 | 0.95 | 0.94 | **0.9551** | ✅ Aprovado | **Validação Final com Script Original** (Hub `7dfdafac`) |
 
 #### Saída Completa do Terminal — Experimento Final (`317a39f0`)
+> 🔗 **Link Público Direto (sem login):** [`https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a`](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+
 ```text
 ==================================================
 AVALIAÇÃO DE PROMPTS OTIMIZADOS
@@ -246,7 +248,7 @@ Dataset: mba-ia-pull-evaluation-prompt-eval (15 exemplos)
 Prompt carregado: publichandle/bug_to_user_story_v2 (Hub 7dfdafac)
 
 View experiment: publichandle-bug_to_user_story_v2-317a39f0
-https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a
+https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a
 
       [1] F1:0.97 Clarity:0.95 Precision:1.00
       [2] F1:0.96 Clarity:0.95 Precision:0.93
@@ -297,19 +299,19 @@ Conforme exigido pelo desafio (*"use o tracing do LangSmith como ferramenta de d
 - **Input (`bug_report`):** `"Dashboard mostra contagem errada de usuários ativos. Mostra 50 mas só há 42 na lista."`
 - **Diagnóstico no Trace (Iteração 1):** O juiz penalizou `Precision` (`0.83`) porque o modelo tratou o número momentâneo `"42"` como regra de negócio fixa.
 - **Ação no Prompt:** Inserida regra no CoT e no Esqueleto Simples para generalizar números de exemplo para a regra geral (*"total real de usuários ativos com status ativo"*).
-- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 0.93` — [Ver Run no LangSmith](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 0.93` — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
 
 #### 2. Caso Médio — Bug #11: Validação de Estoque no Carrinho
 - **Input (`bug_report`):** `"Carrinho permite finalizar compra mesmo com produto fora de estoque... Produto tem 2 unidades em estoque..."`
 - **Diagnóstico no Trace (Iteração 2):** O juiz penalizou `F1-Score` (`0.79`) pela omissão da regra de negócio de reserva temporária de 15 minutos no checkout e mensagem de estoque limitado.
 - **Ação no Prompt:** Tornou-se obrigatória a subseção `Critérios de Prevenção:` com 4 linhas para validação de estoque em tempo real e reserva de 15 min.
-- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 1.00` (Nota Máxima) — [Ver Run no LangSmith](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+- **Resultado no Trace Final:** `F1: 1.00` | `Clarity: 1.00` | `Precision: 1.00` (Nota Máxima) — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
 
 #### 3. Caso Complexo — Bug #15: App Offline-first com Falhas Críticas
 - **Input (`bug_report`):** Incidente crítico com 4 problemas (conflitos last-write-wins, uploads 50MB sem resumable, falta de ordenação e OOM durante sync) com NPS caindo de 8.5 para 4.2.
 - **Diagnóstico no Trace (Revisão Anterior):** O modelo gerava tarefas técnicas especulativas não citadas no relato (microsserviços, kubernetes, GraphQL), mantendo a `Precision` em `0.97`.
 - **Ação no Prompt:** Delimitação estrita da seção `=== TASKS TÉCNICAS SUGERIDAS ===`, restringindo as tarefas às 4 fases da arquitetura descrita no relato (Hotfix em lotes, Core fixes, Robustez local e Scale), com proibição explícita de adicionar dependências externas não mencionadas.
-- **Resultado no Trace Final:** `Precision` saltou para **`1.00`** cravado (`F1: 0.97` | `Clarity: 0.95`) — [Ver Run no LangSmith](https://smith.langchain.com/o/d0e1ad7c-8a25-4cbf-ac57-0f07c18809f0/datasets/e2bd56b1-9a8d-4b63-8f76-9f395ecbe458/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
+- **Resultado no Trace Final:** `Precision` saltou para **`1.00`** cravado (`F1: 0.97` | `Clarity: 0.95`) — [Ver Run no LangSmith](https://smith.langchain.com/public/ee3cb357-1eb2-4882-9169-2a13f50dc047/d/compare?selectedSessions=2cdf82c4-8755-403c-b14b-ac2f742be35a)
 
 ---
 
