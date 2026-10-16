@@ -48,7 +48,7 @@ Repositório de entrega do desafio de **Engenharia e Avaliação de Prompts com 
 
 ## 📋 Fase 1: Diagnóstico do Prompt Inicial (`v1`)
 
-O script `src/pull_prompts.py` conectou-se ao Hub via `client.pull_prompt("leonanluppi/bug_to_user_story_v1")` e salvou localmente o arquivo [`prompts/bug_to_user_story_v1.yml`](prompts/bug_to_user_story_v1.yml):
+O script `src/pull_prompts.py` conectou-se ao Hub via `client.pull_prompt("leonanluppi/bug_to_user_story_v1", dangerously_pull_public_prompt=True)` e salvou localmente o arquivo [`prompts/bug_to_user_story_v1.yml`](prompts/bug_to_user_story_v1.yml):
 
 ```yaml
 bug_to_user_story_v1:
@@ -238,20 +238,20 @@ Pontuações obtidas no formato `F1-Score / Clarity / Precision`:
 | # | Bug Report (`datasets/bug_to_user_story.jsonl`) | Complexidade | Iteração 1 (`bc838971`) | Iteração 2 (`359c1385`) | Iteração 3 (`25a11dc9`) | Refinamento (`317a39f0`) | Modularização Final (`79b74107`) |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|:---:|
 | 1 | Botão adicionar ao carrinho (produto ID 1234) | `simple` | `1.00 / 0.90 / 0.66` | `0.97 / 0.95 / 0.66` | `0.97 / 0.85 / 0.66` | `1.00 / 0.50 / 0.33` | **`1.00 / 0.85 / 0.89`** |
-| 2 | Validação de email sem `@` | `simple` | `0.90 / 0.95 / 0.93` | `0.90 / 0.95 / 0.93` | `1.00 / 0.90 / 0.93` | **`1.00 / 1.00 / 1.00`** |
-| 3 | iOS perfil quebrado em modo landscape | `simple` | `0.97 / 0.90 / 0.93` | `0.92 / 0.90 / 0.93` | `1.00 / 0.85 / 0.93` | **`1.00 / 1.00 / 1.00`** |
-| 4 | Dashboard contagem errada (50 vs 42) | `simple` | `0.90 / 0.90 / 0.83` | `1.00 / 0.85 / 0.93` | `0.97 / 0.95 / 0.93` | **`1.00 / 1.00 / 0.93`** |
-| 5 | Imagens de produto não aparecem no Safari | `simple` | `0.95 / 0.85 / 0.83` | `0.87 / 0.85 / 0.83` | `1.00 / 0.95 / 0.93` | **`1.00 / 1.00 / 1.00`** |
-| 6 | Webhook de pagamento aprovado (`POST` HTTP 500) | `medium` | `0.90 / 0.90 / 0.83` | `0.87 / 0.85 / 0.73` | `1.00 / 1.00 / 1.00` | **`1.00 / 0.95 / 0.93`** |
-| 7 | Relatório de vendas timeout > 2 min | `medium` | `0.95 / 0.95 / 0.93` | `0.87 / 0.95 / 0.83` | `1.00 / 1.00 / 1.00` | **`1.00 / 0.95 / 1.00`** |
-| 8 | Endpoint `/api/users/:id` sem autorização (IDOR) | `medium` | `0.97 / 0.95 / 0.97` | `0.97 / 0.90 / 0.93` | `1.00 / 1.00 / 1.00` | **`0.92 / 0.95 / 0.97`** |
-| 9 | Pipeline calcula desconto errado | `medium` | `1.00 / 0.95 / 0.97` | `1.00 / 0.95 / 0.97` | `1.00 / 1.00 / 1.00` | **`1.00 / 0.98 / 1.00`** |
-| 10 | App Android trava (ANR) com lista longa | `medium` | `1.00 / 0.85 / 0.93` | `0.97 / 0.85 / 0.93` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
-| 11 | Carrinho finaliza compra sem estoque | `medium` | `0.92 / 0.95 / 0.93` | `0.79 / 0.85 / 0.83` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
-| 12 | Modal atrás do menu (`z-index` < 768px) | `medium` | `0.92 / 0.95 / 0.93` | `0.72 / 0.90 / 0.90` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
-| 13 | Checkout crítico (XSS, 504 pool, cupom race) | `complex` | `1.00 / 0.95 / 0.93` | `0.97 / 0.95 / 0.93` | `0.97 / 0.95 / 0.97` | **`0.96 / 0.95 / 0.97`** |
-| 14 | Relatórios SaaS (N+1, MRR, Redis, CSV OOM) | `complex` | `0.97 / 0.95 / 0.93` | `1.00 / 0.95 / 0.93` | `0.92 / 0.95 / 0.93` | **`0.96 / 0.95 / 0.93`** |
-| 15 | App offline-first (sync conflito, ordem, memória) | `complex` | `0.97 / 0.95 / 0.97` | `1.00 / 0.95 / 0.93` | `0.92 / 0.95 / 0.93` | **`0.97 / 0.95 / 1.00`** |
+| 2 | Validação de email sem `@` | `simple` | `0.90 / 0.95 / 0.93` | `0.90 / 0.95 / 0.93` | `1.00 / 0.90 / 0.93` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
+| 3 | iOS perfil quebrado em modo landscape | `simple` | `0.97 / 0.90 / 0.93` | `0.92 / 0.90 / 0.93` | `1.00 / 0.85 / 0.93` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
+| 4 | Dashboard contagem errada (50 vs 42) | `simple` | `0.90 / 0.90 / 0.83` | `1.00 / 0.85 / 0.93` | `0.97 / 0.95 / 0.93` | `1.00 / 1.00 / 0.93` | **`1.00 / 1.00 / 0.93`** |
+| 5 | Imagens de produto não aparecem no Safari | `simple` | `0.95 / 0.85 / 0.83` | `0.87 / 0.85 / 0.83` | `1.00 / 0.95 / 0.93` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
+| 6 | Webhook de pagamento aprovado (`POST` HTTP 500) | `medium` | `0.90 / 0.90 / 0.83` | `0.87 / 0.85 / 0.73` | `1.00 / 1.00 / 1.00` | `1.00 / 0.95 / 0.93` | **`1.00 / 0.90 / 0.83`** |
+| 7 | Relatório de vendas timeout > 2 min | `medium` | `0.95 / 0.95 / 0.93` | `0.87 / 0.95 / 0.83` | `1.00 / 1.00 / 1.00` | `1.00 / 0.95 / 1.00` | **`1.00 / 0.95 / 1.00`** |
+| 8 | Endpoint `/api/users/:id` sem autorização (IDOR) | `medium` | `0.97 / 0.95 / 0.97` | `0.97 / 0.90 / 0.93` | `1.00 / 1.00 / 1.00` | `0.92 / 0.95 / 0.97` | **`0.92 / 0.95 / 0.93`** |
+| 9 | Pipeline calcula desconto errado | `medium` | `1.00 / 0.95 / 0.97` | `1.00 / 0.95 / 0.97` | `1.00 / 1.00 / 1.00` | `1.00 / 0.98 / 1.00` | **`1.00 / 1.00 / 1.00`** |
+| 10 | App Android trava (ANR) com lista longa | `medium` | `1.00 / 0.85 / 0.93` | `0.97 / 0.85 / 0.93` | `1.00 / 1.00 / 1.00` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
+| 11 | Carrinho finaliza compra sem estoque | `medium` | `0.92 / 0.95 / 0.93` | `0.79 / 0.85 / 0.83` | `1.00 / 1.00 / 1.00` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
+| 12 | Modal atrás do menu (`z-index` < 768px) | `medium` | `0.92 / 0.95 / 0.93` | `0.72 / 0.90 / 0.90` | `1.00 / 1.00 / 1.00` | `1.00 / 1.00 / 1.00` | **`1.00 / 1.00 / 1.00`** |
+| 13 | Checkout crítico (XSS, 504 pool, cupom race) | `complex` | `1.00 / 0.95 / 0.93` | `0.97 / 0.95 / 0.93` | `0.97 / 0.95 / 0.97` | `0.96 / 0.95 / 0.97` | **`0.97 / 0.90 / 0.93`** |
+| 14 | Relatórios SaaS (N+1, MRR, Redis, CSV OOM) | `complex` | `0.97 / 0.95 / 0.93` | `1.00 / 0.95 / 0.93` | `0.92 / 0.95 / 0.93` | `0.96 / 0.95 / 0.93` | **`0.96 / 0.95 / 0.93`** |
+| 15 | App offline-first (sync conflito, ordem, memória) | `complex` | `0.97 / 0.95 / 0.97` | `1.00 / 0.95 / 0.93` | `0.92 / 0.95 / 0.93` | `0.97 / 0.95 / 1.00` | **`1.00 / 0.95 / 0.93`** |
 
 ---
 
